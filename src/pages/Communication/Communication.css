@@ -1,0 +1,84 @@
+/* Custom Scrollbar for Communication Module */
+.communication-page *::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+.communication-page *::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.communication-page *::-webkit-scrollbar-thumb {
+  background: rgba(20, 40, 201, 0.1);
+  border-radius: 20px;
+}
+
+.communication-page *::-webkit-scrollbar-thumb:hover {
+  background: rgba(20, 40, 201, 0.2);
+}
+
+/* Firefox scrollbar */
+.communication-page * {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(20, 40, 201, 0.1) transparent;
+}
+
+/* Animations */
+@keyframes shimmer {
+  0% { background-position: -1000px 0; }
+  100% { background-position: 1000px 0; }
+}
+
+.shimmer {
+  background: linear-gradient(90deg, #f0f0f0 25%, #f8f8f8 50%, #f0f0f0 75%);
+  background-size: 1000px 100%;
+  animation: shimmer 2s infinite linear;
+}
+
+/* Glassmorphism utility */
+.glass {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+/* Bubble tail fixes */
+.bubble-in::before {
+  content: '';
+  position: absolute;
+  left: -4px;
+  bottom: 0;
+  width: 8px;
+  height: 8px;
+  background: white;
+  border-left: 1px solid #f1f5f9;
+  border-bottom: 1px solid #f1f5f9;
+  transform: rotate(45deg);
+}
+
+.bubble-out::after {
+  content: '';
+  position: absolute;
+  right: -4px;
+  bottom: 0;
+  width: 8px;
+  height: 8px;
+  background: #1428C9;
+  transform: rotate(45deg);
+}
+
+/* Responsive fixes for mobile browsers */
+@media (max-width: 768px) {
+  .communication-page {
+    height: calc(100vh - 100px) !important;
+  }
+}
+
+.communication-page .flex-shrink-0 {
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Message selection prevention */
+.no-select {
+  user-select: none;
+}
