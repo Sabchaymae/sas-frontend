@@ -1,50 +1,141 @@
 import operationsApi from './operationsApi';
 
-const mapProductFromApi = (p) => ({
-  id: p.id,
-  designation: p.designation,
-  sku: p.sku,
-  categorie: p.categorie,
-  fournisseur: p.fournisseur,
-  quantite: Number(p.quantite),
-  seuil: Number(p.seuil),
-  prixUnitaire: Number(p.prix_unitaire),
-});
+const mapProductFromApi = (p) => {
+  if (!p || !p.id) {
+    console.warn('Invalid product data received from API:', p);
+    return null;
+  }
+  return {
+    id: p.id,
+    designation: p.designation || '',
+    sku: p.sku || '',
+    categorie: p.categorie || '',
+    fournisseur: p.fournisseur || '',
+    quantite: Number(p.quantite || 0),
+    seuil: Number(p.seuil || 0),
+    prixUnitaire: Number(p.prix_unitaire || 0),
+  };
+};
 
 const mapProductToApi = (p) => ({
   designation: p.designation,
-  sku: p.sku,
+  sku: p.sku || `SKU-${Math.floor(Math.random() * 1000000)}`, // SKU court pour Laravel
   categorie: p.categorie,
   fournisseur: p.fournisseur,
-  quantite: Number(p.quantite),
-  seuil: Number(p.seuil),
-  prix_unitaire: Number(p.prixUnitaire),
+  quantite: parseInt(p.quantite) || 0,
+  seuil: parseInt(p.seuil) || 0,
+  prix_unitaire: parseFloat(p.prixUnitaire) || 0,
 });
 
 export const stockService = {
   getProducts: async (params = {}) => {
     const response = await operationsApi.get('api/v1/products', { params });
-    const list = Array.isArray(response.products) ? response.products : [];
-    return list.map(mapProductFromApi);
+    // Handle both { products: [] } and { data: { products: [] } }
+    const list = response.products || response.data?.products || (Array.isArray(response) ? response : []);
+    return list.map(mapProductFromApi).filter(Boolean);
   },
 
   getProduct: async (id) => {
     const response = await operationsApi.get(`api/v1/products/${id}`);
-    return mapProductFromApi(response.product);
+    return mapProductFromApi(response.product || response.data?.product || response);
   },
 
   createProduct: async (productData) => {
+    console.log('Sending product data:', mapProductToApi(productData));
     const response = await operationsApi.post('api/v1/products', mapProductToApi(productData));
-    return mapProductFromApi(response.product);
+    console.log('Server response (create):', response);
+    const product = response.product || response.data?.product || response;
+    return mapProductFromApi(product);
   },
 
   updateProduct: async (id, productData) => {
+    console.log('Updating product data:', mapProductToApi(productData));
     const response = await operationsApi.put(`api/v1/products/${id}`, mapProductToApi(productData));
-    return mapProductFromApi(response.product);
+    console.log('Server response (update):', response);
+    const product = response.product || response.data?.product || response;
+    return mapProductFromApi(product);
   },
 
   deleteProduct: async (id) => {
     const response = await operationsApi.delete(`api/v1/products/${id}`);
+    return response;
+  },
+
+  handleMovement: async (id, movementData) => {
+    // movementData: { type: 'entrée'|'sortie', quantite: number, motif: string }
+    const response = await operationsApi.post(`api/v1/products/${id}/movement`, movementData);
+    return {
+      product: mapProductFromApi(response.product || response.data?.product || response),
+      triggerAlert: response.trigger_alert || false,
+      message: response.message
+    };
+  },
+
+  getMovements: async () => {
+    const response = await operationsApi.get('api/v1/stock/movements');
+    return response.movements || [];
+  },
+
+  getNotifications: async () => {
+    const response = await operationsApi.get('api/v1/notifications');
+    return response;
+  },
+
+  markNotificationRead: async (id) => {
+    const response = await operationsApi.post(`api/v1/notifications/${id}/read`);
+    return response;
+  },
+
+  // ─── Task Management API ─────────────────────────────────────
+  getTasks: async () => {
+    const response = await operationsApi.get('api/v1/tasks');
+    return response.data || [];
+  },
+
+  createTask: async (taskData) => {
+    const response = await operationsApi.post('api/v1/tasks', taskData);
+    return response.data;
+  },
+
+  updateTask: async (id, taskData) => {
+    const response = await operationsApi.put(`api/v1/tasks/${id}`, taskData);
+    return response.data;
+  },
+
+  deleteTask: async (id) => {
+    const response = await operationsApi.delete(`api/v1/tasks/${id}`);
+    return response;
+  },
+
+  // ─── Incident Management API ─────────────────────────────────
+  getIncidents: async () => {
+    const response = await operationsApi.get('api/v1/incidents');
+    return response.data || [];
+  },
+
+  createIncident: async (incidentData) => {
+    const response = await operationsApi.post('api/v1/incidents', incidentData);
+    return response.data;
+  },
+
+  getIncidentDetails: async (id) => {
+    const response = await operationsApi.get(`api/v1/incidents/${id}`);
+    return response;
+  },
+
+  updateIncident: async (id, incidentData) => {
+    const response = await operationsApi.put(`api/v1/incidents/${id}`, incidentData);
+    return response.data;
+  },
+
+  deleteIncident: async (id) => {
+    const response = await operationsApi.delete(`api/v1/incidents/${id}`);
+    return response;
+  },
+
+  addTaskComment: async (taskId, commentData) => {
+    // commentData: { content: string, type: 'comment'|'issue' }
+    const response = await operationsApi.post(`api/v1/tasks/${taskId}/comments`, commentData);
     return response;
   }
 };

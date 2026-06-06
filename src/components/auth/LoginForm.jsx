@@ -45,13 +45,13 @@ const LoginForm = () => {
       <form onSubmit={handleSubmit(onSubmit)} className="login-form-fields" noValidate>
         <Input
           id="login-email"
-          label="Adresse email"
-          type="email"
+          label="Email ou Identifiant"
+          type="text"
           icon={Mail}
-          placeholder="votre@email.com"
+          placeholder="votre@email.com ou USR001"
           required
           error={errors.email?.message}
-          autoComplete="email"
+          autoComplete="username"
           {...register('email')}
         />
 

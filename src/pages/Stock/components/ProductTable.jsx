@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Eye, Pencil, Trash2, ChevronDown, ChevronUp, Package } from 'lucide-react';
+import { Eye, Pencil, Trash2, ChevronDown, ChevronUp, Package, ArrowUpDown } from 'lucide-react';
 
-const ProductTable = ({ products, onView, onEdit, onDelete, canView = true, canEdit = true, canDelete = true }) => {
+const ProductTable = ({ products, onView, onEdit, onDelete, onMovement, canView = true, canEdit = true, canDelete = true }) => {
   const [sortField, setSortField] = useState(null);
   const [sortDirection, setSortDirection] = useState('asc');
 
@@ -172,7 +172,16 @@ const ProductTable = ({ products, onView, onEdit, onDelete, canView = true, canE
 
                 {/* Actions */}
                 <td className="px-6 py-4">
-                  <div className="flex items-center justify-end gap-1 opacity-0 group-hover/row:opacity-100 transition-opacity duration-200">
+                  <div className="flex items-center justify-end gap-1 transition-opacity duration-200">
+                    {canEdit && (
+                      <button
+                        onClick={() => onMovement(product)}
+                        title="Mouvement de stock"
+                        className="p-2 text-emerald-500 hover:bg-emerald-50 rounded-lg transition-colors"
+                      >
+                        <ArrowUpDown size={18} />
+                      </button>
+                    )}
                     {canView && (
                       <button
                         onClick={() => onView?.(product)}

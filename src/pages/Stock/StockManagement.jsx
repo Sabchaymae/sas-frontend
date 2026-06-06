@@ -1,41 +1,45 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, lazy, Suspense } from 'react';
 import { motion } from 'framer-motion';
 import {
   Package,
   AlertTriangle,
-  Coins,
   Plus,
   Search,
-  SlidersHorizontal,
+  Coins,
+  History,
 } from 'lucide-react';
 
 import StatsCard from './components/StatsCard';
 import ProductTable from './components/ProductTable';
 import AddProductModal from './components/AddProductModal';
 import ProductDetailModal from './components/ProductDetailModal';
+import StockMovementModal from './components/StockMovementModal';
+import StockHistory from './components/StockHistory';
 import usePermissions from '../../hooks/usePermissions';
 import { stockService } from '../../services/stockService';
 
+const ConfirmationModal = lazy(() => import('../../components/users/ConfirmationModal'));
+
 const CATEGORIES = [
   'Toutes catégories',
-  'Linge de lit',
-  'Produits ménagers',
-  'Salle de bain',
-  'Cuisine',
-  'Consommables',
-  'Équipements chambre',
-  'Mobilier',
-  'Électronique',
+  'Équipement Réseau',
+  'Terminaux & Mobiles',
+  'Cartes SIM & Recharges',
+  'Accessoires',
+  'Consommables Bureau',
+  'Infrastructure',
+  'Outillage',
 ];
 
 const FOURNISSEURS = [
   'Tous fournisseurs',
-  'Textiles & Co',
-  'CleanPro',
-  'HôtelSupply',
-  'FreshLinen',
-  'ProEquip',
-  'AlgérieFournitures',
+  'IAM (Maroc Telecom)',
+  'Inwi',
+  'Orange Maroc',
+  'Huawei',
+  'Nokia',
+  'Ericsson',
+  'Cisco',
 ];
 
 // ─── Main Component ────────────────────────────────────────────
@@ -46,6 +50,19 @@ const StockManagement = () => {
   const [editingProduct, setEditingProduct] = useState(null);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
+  const [isMovementOpen, setIsMovementOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [productToDelete, setProductToDelete] = useState(null);
+  const [showHistory, setShowHistory] = useState(false);
+  
+  // États pour les notifications stylisées (PFE)
+  const [notification, setNotification] = useState({
+    isOpen: false,
+    title: '',
+    message: '',
+    type: 'primary',
+    onConfirm: null
+  });
   
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('Toutes catégories');
@@ -106,16 +123,20 @@ const StockManagement = () => {
         categorie: form.categorie,
         fournisseur: form.fournisseur,
         quantite: parseInt(form.quantite) || 0,
-        seuil: parseInt(form.seuil) || 20,
+        seuil: parseInt(form.seuil) || 100,
         prixUnitaire: parseFloat(form.prixNormal) || 0,
       };
 
       if (id) {
         const updated = await stockService.updateProduct(id, productData);
-        setProducts(prev => prev.map(p => p.id === id ? updated : p));
+        if (updated) {
+          setProducts(prev => prev.map(p => p.id === id ? updated : p));
+        }
       } else {
         const created = await stockService.createProduct(productData);
-        setProducts(prev => [created, ...prev]);
+        if (created) {
+          setProducts(prev => [created, ...prev]);
+        }
       }
       setEditingProduct(null);
     } catch (error) {
@@ -124,11 +145,18 @@ const StockManagement = () => {
     }
   };
 
-  const handleDelete = async (product) => {
-    if (window.confirm(`Supprimer "${product.designation}" ?`)) {
+  const handleDelete = (product) => {
+    setProductToDelete(product);
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (productToDelete) {
       try {
-        await stockService.deleteProduct(product.id);
-        setProducts(prev => prev.filter(p => p.id !== product.id));
+        await stockService.deleteProduct(productToDelete.id);
+        setProducts(prev => prev.filter(p => p.id !== productToDelete.id));
+        setIsDeleteModalOpen(false);
+        setProductToDelete(null);
       } catch (error) {
         console.error('Error deleting product:', error);
         alert('Erreur lors de la suppression.');
@@ -145,6 +173,57 @@ const StockManagement = () => {
     setSelectedProduct(product);
     setIsDetailOpen(true);
   };
+
+  const handleMovementClick = (product) => {
+    setSelectedProduct(product);
+    setIsMovementOpen(true);
+  };
+
+  // ─── Stock Movement Handler (Nouveau pour PFE) ─────────────
+  const handleStockMovement = async (productId, movementData) => {
+    try {
+      const result = await stockService.handleMovement(productId, movementData);
+      
+      // 1. Mettre à jour l'état local du produit
+      setProducts(prev => prev.map(p => p.id === productId ? result.product : p));
+
+      // 2. Notification de succès stylisée
+      if (result.triggerAlert) {
+        setNotification({
+          isOpen: true,
+          title: 'Alerte Stock Bas & Succès',
+          message: `Le mouvement a été enregistré. ATTENTION : Le produit "${result.product.designation}" est passé sous le seuil d'alerte ! Un bon de commande draft a été généré.`,
+          type: 'primary',
+          onConfirm: () => setNotification(prev => ({ ...prev, isOpen: false }))
+        });
+      } else {
+        setNotification({
+          isOpen: true,
+          title: 'Opération Réussie',
+          message: result.message,
+          type: 'primary',
+          onConfirm: () => setNotification(prev => ({ ...prev, isOpen: false }))
+        });
+      }
+
+    } catch (error) {
+      // 3. Alerte bloquante stylisée pour les erreurs (Stock insuffisant, etc.)
+      const errorMessage = error.response?.data?.message || error.message || 'Une erreur est survenue lors du mouvement de stock.';
+      
+      setNotification({
+        isOpen: true,
+        title: 'Erreur d\'Opération',
+        message: errorMessage,
+        type: 'danger',
+        onConfirm: () => setNotification(prev => ({ ...prev, isOpen: false }))
+      });
+      console.error('Error handling stock movement:', error);
+    }
+  };
+
+  if (showHistory) {
+    return <StockHistory onBack={() => setShowHistory(false)} />;
+  }
 
   return (
     <div className="w-full mx-auto pb-12 space-y-8">
@@ -177,6 +256,18 @@ const StockManagement = () => {
                 ⚠ {stats.alerts} produit{stats.alerts > 1 ? 's' : ''} en stock bas
               </span>
             </motion.div>
+          )}
+          {hasPermission('Stock', 'Création') && (
+            <motion.button
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ delay: 0.4 }}
+              onClick={() => setShowHistory(true)}
+              className="flex items-center gap-2 px-6 py-3 bg-white border border-gray-100 text-[#111827] text-sm font-bold rounded-xl hover:bg-gray-50 hover:shadow-md transition-all duration-200"
+            >
+              <History size={18} className="text-[#1428C9]" />
+              Historique
+            </motion.button>
           )}
           {hasPermission('Stock', 'Création') && (
             <motion.button
@@ -311,6 +402,7 @@ const StockManagement = () => {
         onView={handleViewClick}
         onEdit={handleEditClick}
         onDelete={handleDelete}
+        onMovement={handleMovementClick}
         canView={hasPermission('Stock', 'Lecture')}
         canEdit={hasPermission('Stock', 'Modification')}
         canDelete={hasPermission('Stock', 'Suppression')}
@@ -336,6 +428,45 @@ const StockManagement = () => {
         }}
         product={selectedProduct}
       />
+
+      {/* ── Stock Movement Modal (Nouveau pour PFE) ───────────── */}
+      <StockMovementModal
+        isOpen={isMovementOpen}
+        onClose={() => {
+          setIsMovementOpen(false);
+          setSelectedProduct(null);
+        }}
+        onSave={handleStockMovement}
+        product={selectedProduct}
+      />
+
+      {/* ── Delete Confirmation Modal ─────────────────────────── */}
+      <Suspense fallback={null}>
+        {isDeleteModalOpen && (
+          <ConfirmationModal
+            isOpen={isDeleteModalOpen}
+            onClose={() => setIsDeleteModalOpen(false)}
+            onConfirm={handleConfirmDelete}
+            title="Supprimer le produit"
+            message={`Êtes-vous sûr de vouloir supprimer le produit "${productToDelete?.designation}" ? Cette action est irréversible.`}
+            confirmText="Supprimer"
+            type="danger"
+          />
+        )}
+
+        {/* ── Stylized Notifications (PFE) ─────────────────────── */}
+        {notification.isOpen && (
+          <ConfirmationModal
+            isOpen={notification.isOpen}
+            onClose={() => setNotification(prev => ({ ...prev, isOpen: false }))}
+            onConfirm={notification.onConfirm}
+            title={notification.title}
+            message={notification.message}
+            confirmText="OK"
+            type={notification.type}
+          />
+        )}
+      </Suspense>
     </div>
   );
 };

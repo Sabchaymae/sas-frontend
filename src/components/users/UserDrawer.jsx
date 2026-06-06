@@ -5,6 +5,7 @@ import Button from '../common/Button';
 import Input from '../common/Input';
 import Select from '../common/Select';
 import { USER_ROLES } from '../../constants/users';
+import CredentialsModal from './CredentialsModal';
 
 const DEFAULT_ROLES = Object.values(USER_ROLES);
 
@@ -12,7 +13,6 @@ const UserDrawer = ({ isOpen, onClose, onSubmit, initialData }) => {
   const [formData, setFormData] = useState({
     nom: '',
     prenom: '',
-    email: '',
     telephone: '',
     role: USER_ROLES.ASSISTANT,
     cin: '',
@@ -28,6 +28,7 @@ const UserDrawer = ({ isOpen, onClose, onSubmit, initialData }) => {
   const [isAddingRole, setIsAddingRole] = useState(false);
   const [newRoleName, setNewRoleName] = useState('');
   const [roleDropdownOpen, setRoleDropdownOpen] = useState(false);
+  const [createdCredentials, setCreatedCredentials] = useState(null);
 
   useEffect(() => {
     if (initialData) {
@@ -35,7 +36,6 @@ const UserDrawer = ({ isOpen, onClose, onSubmit, initialData }) => {
       setFormData({
         nom: initialData.nom ?? '',
         prenom: initialData.prenom ?? '',
-        email: initialData.email ?? '',
         telephone: initialData.telephone ?? '',
         role: initialData.role ?? USER_ROLES.ASSISTANT,
         cin: initialData.cin ?? '',
@@ -52,7 +52,6 @@ const UserDrawer = ({ isOpen, onClose, onSubmit, initialData }) => {
       setFormData({
         nom: '',
         prenom: '',
-        email: '',
         telephone: '',
         role: USER_ROLES.ASSISTANT,
         cin: '',
@@ -129,13 +128,22 @@ const UserDrawer = ({ isOpen, onClose, onSubmit, initialData }) => {
         }
       });
 
-      // Always provide a password for new users
-      if (!initialData) {
-        data.append('password', 'password123');
+      // If password is not provided, backend will generate one
+      if (formData.password) {
+        data.append('password', formData.password);
       }
 
-      await onSubmit(data);
-      onClose();
+      const result = await onSubmit(data);
+      
+      // If we got a generated password, show the credentials modal instead of closing
+      if (result && result.generated_password) {
+        setCreatedCredentials({
+          identifiant: result.identifiant,
+          generated_password: result.generated_password
+        });
+      } else {
+        onClose();
+      }
     } catch (err) {
       // Log full server validation errors for debugging
       if (err.response?.data?.errors) {
@@ -224,8 +232,6 @@ const UserDrawer = ({ isOpen, onClose, onSubmit, initialData }) => {
             <Input label="Prénom" name="prenom" value={formData.prenom} onChange={handleChange} placeholder="Jean" required />
           </div>
 
-          <Input label="Email professionnel" type="email" name="email" value={formData.email} onChange={handleChange} placeholder="exemple@oriotel.com" required />
-
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Input label="Téléphone" name="telephone" value={formData.telephone} onChange={handleChange} placeholder="+33..." />
             <Input label="CIN / Identité" name="cin" value={formData.cin} onChange={handleChange} placeholder="AB123456" />
@@ -289,6 +295,15 @@ const UserDrawer = ({ isOpen, onClose, onSubmit, initialData }) => {
           </div>
         </form>
       </div>
+
+      <CredentialsModal 
+        isOpen={!!createdCredentials}
+        onClose={() => {
+          setCreatedCredentials(null);
+          onClose();
+        }}
+        credentials={createdCredentials}
+      />
     </>
   );
 };

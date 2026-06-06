@@ -32,7 +32,10 @@ const ForcePasswordChange = () => {
   const newPassword = watch('newPassword');
 
   const onSubmit = async (data) => {
-    await handleChangePassword(data);
+    await handleChangePassword({
+      ...data,
+      isForced: true
+    });
   };
 
   return (

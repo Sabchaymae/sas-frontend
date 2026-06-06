@@ -51,21 +51,7 @@ export const useUsers = () => {
 
   const addUser = useCallback(async (userData) => {
     try {
-      let finalData = userData;
-      
-      // Handle FormData
-      if (userData instanceof FormData) {
-        if (!userData.has('password')) {
-          userData.append('password', 'password123');
-        }
-      } else {
-        finalData = {
-          ...userData,
-          password: 'password123',
-        };
-      }
-
-      const newUser = await userService.createUser(finalData);
+      const newUser = await userService.createUser(userData);
       setUsers(prev => [newUser, ...prev]);
       return newUser;
     } catch (err) {

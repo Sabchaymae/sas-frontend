@@ -1,7 +1,5 @@
 import { memo } from 'react';
 import { useLocation, Link } from "react-router-dom";
-import { useSelector } from 'react-redux';
-import { selectUser } from '../../store/slices/authSlice';
 import {
   LayoutDashboard,
   Users,
@@ -13,25 +11,25 @@ import {
   Clock,
   Settings,
   HelpCircle,
-  Activity,
-  ShieldCheck,
+  History,
+  Shield,
   ChevronRight,
-  X
+  X,
+  AlertTriangle,
+  ShoppingCart
 } from "lucide-react";
 import { cn } from '../../utils/cn';
 import usePermissions from '../../hooks/usePermissions';
 
 const Sidebar = memo(({ isOpen, onClose }) => {
   const location = useLocation();
-  const user = useSelector(selectUser);
-  const isAssistant = user?.role?.toLowerCase() === 'assistant' || user?.email === 'assistante@oriotel.com';
   const { hasPermission } = usePermissions();
 
   const NAVIGATION = [
     { name: "Tableau de bord", href: "/dashboard", icon: <LayoutDashboard className="w-5 h-5" />, show: true },
     { name: "Utilisateurs", href: "/dashboard/users", icon: <Users className="w-5 h-5" />, show: hasPermission('Utilisateurs') },
-    { name: "Rôles & Permissions", href: "/dashboard/roles-permissions", icon: <ShieldCheck className="w-5 h-5" />, show: hasPermission('Autorisation') },
-    { name: "Historique", href: "/dashboard/historique", icon: <Activity className="w-5 h-5" />, show: true },
+    { name: "Rôles & Permissions", href: "/dashboard/roles-permissions", icon: <Shield className="w-5 h-5" />, show: hasPermission('Autorisation') },
+    { name: "Historique", href: "/dashboard/historique", icon: <History className="w-5 h-5" />, show: true },
     { 
       name: "Souscriptions", 
       href: "/dashboard/subscriptions",
@@ -40,8 +38,10 @@ const Sidebar = memo(({ isOpen, onClose }) => {
     },
     { name: "Dossiers", href: "/dashboard/dossiers", icon: <Folder className="w-5 h-5" />, show: true },
     { name: "Stock", href: "/dashboard/stock", icon: <Box className="w-5 h-5" />, show: hasPermission('Stock') },
+    { name: "Catalogue", href: "/dashboard/catalogue", icon: <ShoppingCart className="w-5 h-5" />, show: hasPermission('Stock') },
     { name: "Communication", href: "/dashboard/communication", icon: <MessageSquare className="w-5 h-5" />, show: hasPermission('Communication') },
     { name: "Tâches", href: "/dashboard/tasks", icon: <CheckSquare className="w-5 h-5" />, show: hasPermission('Tâches') },
+    { name: "Incidents", href: "/dashboard/incidents", icon: <AlertTriangle className="w-5 h-5" />, show: hasPermission('Incidents', 'Lecture') },
     { name: "Pointage", href: "/dashboard/time", icon: <Clock className="w-5 h-5" />, show: hasPermission('Temps') },
   ].filter(item => item.show);
 

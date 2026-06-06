@@ -1,14 +1,46 @@
-import { Bell, Search, Globe, ChevronRight, Users, LogOut, ChevronDown, Menu } from 'lucide-react';
+import { Bell, Search, Globe, ChevronRight, Users, LogOut, ChevronDown, Menu, Package, Clock, X, AlertTriangle } from 'lucide-react';
 import { useLocation, Link } from 'react-router-dom';
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import * as Avatar from "@radix-ui/react-avatar";
+import { useState, useEffect } from 'react';
 import Button from '../common/Button';
 import Input from '../common/Input';
 import useAuth from '@/hooks/useAuth';
+import { stockService } from '@/services/stockService';
 
 const Header = ({ onMenuClick }) => {
   const { logout, user } = useAuth();
+  const [notifications, setNotifications] = useState([]);
+  const [unreadCount, setUnreadCount] = useState(0);
   const location = useLocation();
+
+  useEffect(() => {
+    fetchNotifications();
+    const interval = setInterval(fetchNotifications, 30000); // Polling toutes les 30s
+    return () => clearInterval(interval);
+  }, []);
+
+  const fetchNotifications = async () => {
+    try {
+      const response = await stockService.getNotifications();
+      if (response.success) {
+        setNotifications(response.notifications);
+        setUnreadCount(response.unread_count);
+      }
+    } catch (error) {
+      console.error('Error fetching notifications:', error);
+    }
+  };
+
+  const handleMarkAsRead = async (id) => {
+    try {
+      await stockService.markNotificationRead(id);
+      fetchNotifications();
+    } catch (error) {
+      console.error('Error marking notification as read:', error);
+    }
+  };
+
   const pathnames = location.pathname.split('/').filter((x) => x);
 
   const breadcrumbMap = {
@@ -64,10 +96,90 @@ const Header = ({ onMenuClick }) => {
           />
 
           <div className="flex items-center gap-1 shrink-0">
-            <Button variant="ghost" size="sm" className="relative p-2 md:p-2.5">
-              <Bell size={20} />
-              <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-[#1428C9] rounded-full border-2 border-white"></span>
-            </Button>
+            {/* Notifications Dropdown */}
+            <DropdownMenu.Root>
+              <DropdownMenu.Trigger asChild>
+                <Button variant="ghost" size="sm" className="relative p-2 md:p-2.5 outline-none">
+                  <Bell size={20} className={unreadCount > 0 ? "text-[#1428C9]" : "text-gray-500"} />
+                  {unreadCount > 0 && (
+                    <span className="absolute top-2 right-2 w-4 h-4 bg-red-500 text-white text-[10px] font-black rounded-full border-2 border-white flex items-center justify-center animate-bounce">
+                      {unreadCount}
+                    </span>
+                  )}
+                </Button>
+              </DropdownMenu.Trigger>
+
+              <DropdownMenu.Portal>
+                <DropdownMenu.Content
+                  className="z-[100] w-80 bg-white rounded-2xl border border-gray-100 shadow-2xl p-2 animate-in fade-in zoom-in-95 slide-in-from-top-2 duration-300"
+                  sideOffset={12}
+                  align="end"
+                >
+                  <div className="px-4 py-4 border-b border-gray-50 flex items-center justify-between">
+                    <h3 className="text-sm font-black text-[#111827]">Notifications</h3>
+                    <span className="text-[10px] font-bold bg-[#1428C9]/10 text-[#1428C9] px-2 py-1 rounded-lg">
+                      {unreadCount} Nouvelles
+                    </span>
+                  </div>
+
+                  <div className="max-h-[400px] overflow-y-auto py-2 no-scrollbar">
+                    {notifications.length === 0 ? (
+                      <div className="py-10 text-center">
+                        <div className="w-12 h-12 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-3">
+                          <Bell size={20} className="text-gray-300" />
+                        </div>
+                        <p className="text-xs text-gray-400 font-medium">Aucune notification</p>
+                      </div>
+                    ) : (
+                      notifications.map((notif) => (
+                        <DropdownMenu.Item 
+                          key={notif.id} 
+                          className="outline-none p-3 hover:bg-gray-50 rounded-xl transition-all cursor-pointer group relative mb-1"
+                          onClick={() => handleMarkAsRead(notif.id)}
+                        >
+                          <div className="flex gap-4">
+                            <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
+                              notif.data.type === 'stock_alert' ? 'bg-red-50 text-red-500' : 'bg-[#1428C9]/10 text-[#1428C9]'
+                            }`}>
+                              {notif.data.type === 'stock_alert' ? <AlertTriangle size={18} /> : <Package size={18} />}
+                            </div>
+                            <div className="space-y-1">
+                              <p className="text-xs font-black text-[#111827]">{notif.data.title}</p>
+                              <p className="text-[11px] text-gray-500 font-medium leading-relaxed">
+                                {notif.data.message}
+                              </p>
+                              <div className="flex items-center gap-2 mt-2">
+                                <Clock size={10} className="text-gray-300" />
+                                <span className="text-[9px] text-gray-400 font-bold uppercase tracking-wider">
+                                  {new Date(notif.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                          <button 
+                            className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 p-1 hover:bg-gray-200 rounded-md transition-all"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleMarkAsRead(notif.id);
+                            }}
+                          >
+                            <X size={12} className="text-gray-400" />
+                          </button>
+                        </DropdownMenu.Item>
+                      ))
+                    )}
+                  </div>
+                  
+                  <Link 
+                    to="/stock" 
+                    onClick={() => setShowHistory(true)}
+                    className="block w-full py-3 mt-2 text-center text-[11px] font-black text-[#1428C9] bg-gray-50 hover:bg-[#1428C9]/5 rounded-xl transition-all uppercase tracking-widest"
+                  >
+                    Voir tout l'historique
+                  </Link>
+                </DropdownMenu.Content>
+              </DropdownMenu.Portal>
+            </DropdownMenu.Root>
 
             {/* Profile Dropdown */}
             <div className="flex items-center pl-2 md:pl-4 border-l border-gray-100 ml-1 md:ml-0">
@@ -88,7 +200,6 @@ const Header = ({ onMenuClick }) => {
                     </Avatar.Root>
                     <div className="hidden sm:block text-left">
                       <p className="text-sm font-bold text-[#111827] leading-none">{user?.full_name || 'Utilisateur'}</p>
-                      <p className="text-[11px] text-gray-400 mt-1 capitalize">{user?.role || 'Rôle'}</p>
                     </div>
                     <ChevronDown size={14} className="text-gray-400 hidden sm:block" />
                   </div>
@@ -105,13 +216,13 @@ const Header = ({ onMenuClick }) => {
                       <p className="text-[11px] text-gray-500 mt-1.5 font-medium">{user?.email || 'email@example.com'}</p>
                     </div>
                     <div className="p-1">
-                      <DropdownMenu.Item className="outline-none">
+                      <DropdownMenu.Item asChild className="outline-none">
                         <Link to="/profile" className="flex items-center gap-3 px-3 py-2.5 rounded-sm text-sm font-semibold text-gray-600 hover:bg-[#F0F3FF] hover:text-[#1428C9] transition-all duration-200">
                           <Users size={18} />
                           <span>Mon Profil</span>
                         </Link>
                       </DropdownMenu.Item>
-                      <DropdownMenu.Item className="outline-none">
+                      <DropdownMenu.Item asChild className="outline-none">
                         <button onClick={logout} className="w-full flex items-center gap-3 px-3 py-2.5 rounded-sm text-sm font-semibold text-red-600 hover:bg-red-50 transition-all duration-200">
                           <LogOut size={18} />
                           <span>Déconnexion</span>

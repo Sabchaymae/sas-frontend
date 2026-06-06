@@ -108,22 +108,21 @@ class AuthService {
    * @returns {Promise<Object>}
    */
   async changePassword(data) {
+    // Map fields from form (newPassword/confirmPassword) to backend (password/password_confirmation)
+    const payload = {
+      current_password: data.currentPassword,
+      password: data.newPassword || data.password,
+      password_confirmation: data.confirmPassword || data.password_confirmation || data.passwordConfirmation,
+    };
+
     // If we have a temp token, it's a forced change password, which has its own endpoint
-    if (data.isForced) {
+    if (data.isForced || !data.currentPassword) {
       // Need to pass the temp token in headers, which api.js handles via localStorage auth_token
-      // The slice should have saved the temp token as auth_token temporarily
-      return await api.post(AUTH_ENDPOINTS.FORCE_CHANGE_PASSWORD, {
-        password: data.password,
-        password_confirmation: data.password_confirmation,
-      });
+      return await api.post(AUTH_ENDPOINTS.FORCE_CHANGE_PASSWORD, payload);
     }
     
     // Standard change password
-    return await api.post(AUTH_ENDPOINTS.CHANGE_PASSWORD, {
-      current_password: data.currentPassword,
-      password: data.password,
-      password_confirmation: data.passwordConfirmation || data.password_confirmation,
-    });
+    return await api.post(AUTH_ENDPOINTS.CHANGE_PASSWORD, payload);
   }
 
   /**

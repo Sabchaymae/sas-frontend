@@ -3,23 +3,23 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, Package, Save } from 'lucide-react';
 
 const CATEGORIES = [
-  'Linge de lit',
-  'Produits ménagers',
-  'Salle de bain',
-  'Équipements chambre',
-  'Cuisine',
-  'Consommables',
-  'Mobilier',
-  'Électronique',
+  'Équipement Réseau',
+  'Terminaux & Mobiles',
+  'Cartes SIM & Recharges',
+  'Accessoires',
+  'Consommables Bureau',
+  'Infrastructure',
+  'Outillage',
 ];
 
 const FOURNISSEURS = [
-  'Textiles & Co',
-  'CleanPro',
-  'HôtelSupply',
-  'FreshLinen',
-  'ProEquip',
-  'AlgérieFournitures',
+  'IAM (Maroc Telecom)',
+  'Inwi',
+  'Orange Maroc',
+  'Huawei',
+  'Nokia',
+  'Ericsson',
+  'Cisco',
 ];
 
 const initialForm = {
@@ -34,17 +34,20 @@ const initialForm = {
 
 const AddProductModal = ({ isOpen, onClose, onSave, productToEdit }) => {
   const [form, setForm] = useState(initialForm);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     if (productToEdit) {
+      const qte = productToEdit.quantite || 0;
+      const prix = productToEdit.prixUnitaire || 0;
       setForm({
         designation: productToEdit.designation || '',
         categorie: productToEdit.categorie || '',
         fournisseur: productToEdit.fournisseur || '',
-        quantite: productToEdit.quantite || '',
+        quantite: qte,
         seuil: productToEdit.seuil || '',
-        prixNormal: productToEdit.prixUnitaire || '',
-        prixQuantite: '',
+        prixNormal: prix,
+        prixQuantite: (qte * prix).toFixed(2),
       });
     } else {
       setForm(initialForm);
@@ -52,14 +55,32 @@ const AddProductModal = ({ isOpen, onClose, onSave, productToEdit }) => {
   }, [productToEdit, isOpen]);
 
   const handleChange = (field, value) => {
-    setForm(prev => ({ ...prev, [field]: value }));
+    setForm(prev => {
+      const newForm = { ...prev, [field]: value };
+      
+      // Auto-calculate total price if quantity or unit price changes
+      if (field === 'quantite' || field === 'prixNormal') {
+        const qte = parseFloat(newForm.quantite) || 0;
+        const prix = parseFloat(newForm.prixNormal) || 0;
+        newForm.prixQuantite = (qte * prix).toFixed(2);
+      }
+      
+      return newForm;
+    });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    onSave(form, productToEdit?.id);
-    setForm(initialForm);
-    onClose();
+    try {
+      setIsSubmitting(true);
+      await onSave(form, productToEdit?.id);
+      setForm(initialForm);
+      onClose();
+    } catch (error) {
+      console.error('Submit error:', error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -187,7 +208,7 @@ const AddProductModal = ({ isOpen, onClose, onSave, productToEdit }) => {
                     min="0"
                     value={form.seuil}
                     onChange={(e) => handleChange('seuil', e.target.value)}
-                    placeholder="20"
+                    placeholder="100"
                     className="w-full px-4 py-3.5 bg-gray-50 border-2 border-gray-100 rounded-xl text-sm font-medium text-[#111827] placeholder:text-gray-300 focus:border-[#1428C9] focus:bg-white focus:ring-4 focus:ring-[#1428C9]/5 outline-none"
                   />
                 </div>
@@ -202,8 +223,8 @@ const AddProductModal = ({ isOpen, onClose, onSave, productToEdit }) => {
                   <input
                     type="number"
                     required
-                    min="0"
                     step="0.01"
+                    min="0"
                     value={form.prixNormal}
                     onChange={(e) => handleChange('prixNormal', e.target.value)}
                     placeholder="0.00"
@@ -212,16 +233,13 @@ const AddProductModal = ({ isOpen, onClose, onSave, productToEdit }) => {
                 </div>
                 <div>
                   <label className="block text-[10px] font-black uppercase tracking-[0.15em] text-gray-500 mb-2">
-                    Prix par quantité (DH)
+                    Prix par quantité (Total)
                   </label>
                   <input
-                    type="number"
-                    min="0"
-                    step="0.01"
+                    type="text"
+                    disabled
                     value={form.prixQuantite}
-                    onChange={(e) => handleChange('prixQuantite', e.target.value)}
-                    placeholder="0.00"
-                    className="w-full px-4 py-3.5 bg-gray-50 border-2 border-gray-100 rounded-xl text-sm font-medium text-[#111827] placeholder:text-gray-300 focus:border-[#1428C9] focus:bg-white focus:ring-4 focus:ring-[#1428C9]/5 outline-none"
+                    className="w-full px-4 py-3.5 bg-gray-100 border-2 border-gray-100 rounded-xl text-sm font-bold text-[#1428C9] outline-none cursor-not-allowed"
                   />
                 </div>
               </div>
@@ -237,10 +255,11 @@ const AddProductModal = ({ isOpen, onClose, onSave, productToEdit }) => {
                 </button>
                 <button
                   type="submit"
-                  className="px-8 py-3 bg-[#1428C9] text-white text-sm font-bold rounded-xl hover:bg-[#1428C9]/90 hover:shadow-lg hover:shadow-[#1428C9]/20 transition-all duration-200 flex items-center gap-2"
+                  disabled={isSubmitting}
+                  className="px-8 py-3 bg-[#1428C9] text-white text-sm font-bold rounded-xl hover:bg-[#1428C9]/90 hover:shadow-lg hover:shadow-[#1428C9]/20 transition-all duration-200 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <Save size={16} />
-                  Sauvegarder
+                  {isSubmitting ? 'Chargement...' : 'Sauvegarder'}
                 </button>
               </div>
             </form>

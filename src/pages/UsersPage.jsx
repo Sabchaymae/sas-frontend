@@ -76,9 +76,9 @@ const UsersPage = () => {
 
   const handleDrawerSubmit = useCallback(async (data) => {
     if (selectedUser) {
-      await updateUser(selectedUser.id, data);
+      return await updateUser(selectedUser.id, data);
     } else {
-      await addUser(data);
+      return await addUser(data);
     }
   }, [selectedUser, updateUser, addUser]);
 
