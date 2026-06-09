@@ -16,14 +16,14 @@ export const getEcho = () => {
 
   echoInstance = new Echo({
     broadcaster: 'reverb',
-    key: 'oriotel_reverb_key',
-    wsHost: 'localhost',
-    wsPort: 8085,
-    wssPort: 8085,
+    key: 'oriotel1_reverb_key',
+    wsHost: window.location.hostname,
+    wsPort: 8095,
+    wssPort: 8095,
     forceTLS: false,
     enabledTransports: ['ws', 'wss'],
     disableStats: true,
-    authEndpoint: 'http://localhost:8080/api/communication/broadcasting/auth',
+    authEndpoint: `http://${window.location.hostname}:8090/api/communication/broadcasting/auth`,
     authorizer: (channel, options) => {
       console.log('🎯 AUTHORIZER CALLED! Channel object:', channel);
       console.log('🎯 Channel name:', channel.name);
@@ -31,7 +31,7 @@ export const getEcho = () => {
       return {
         authorize: (socketId, callback) => {
           console.log('🔐 Authorizing channel:', channel.name, 'socket:', socketId);
-          axios.post('http://localhost:8080/api/communication/broadcasting/auth', {
+          axios.post(`http://${window.location.hostname}:8090/api/communication/broadcasting/auth`, {
             socket_id: socketId,
             channel_name: channel.name
           }, {

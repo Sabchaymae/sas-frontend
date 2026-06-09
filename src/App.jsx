@@ -21,6 +21,7 @@ import IncidentReporting from '@/pages/Stock/components/IncidentReporting'
 import StockManagement from '@/pages/Stock/StockManagement'
 import ProductCatalogue from '@/pages/Stock/ProductCatalogue'
 import WorkTimeManagement from '@/pages/WorkTime/WorkTimeManagement'
+import CommunicationPage from '@/pages/Communication/CommunicationPage'
 
 // Lazy-loaded auth pages
 const LoginPage = lazy(() => import('@/pages/auth/LoginPage'))
@@ -123,6 +124,11 @@ function App() {
           <Route path="catalogue" element={
             <ProtectedRoute module="Stock" action="Lecture">
               <ProductCatalogue />
+            </ProtectedRoute>
+          } />
+          <Route path="communication" element={
+            <ProtectedRoute module="Communication" action="Lecture">
+              <CommunicationPage />
             </ProtectedRoute>
           } />
           <Route path="time" element={

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Search, UserPlus, Loader2, Check, Users, MessageSquare } from 'lucide-react';
 import { userService } from '../../../services/userService';
+import communicationService from '../../../services/communicationService';
 import useAuth from '../../../hooks/useAuth';
 import useChatStore from '../../../store/useChatStore';
 
@@ -20,16 +21,28 @@ const NewConversationModal = ({ isOpen, onClose, onSelectUser }) => {
   useEffect(() => {
     if (isOpen) {
       setLoading(true);
-      userService.getUsers({ all: true })
-        .then(r => setUsers(r.data || []))
-        .catch(console.error)
-        .finally(() => setLoading(false));
+      // Utiliser un debounce ou une recherche réelle si nécessaire
+      const fetchUsers = async () => {
+        try {
+          // On essaie d'abord via le service communication (recherche sémantique/nom/email)
+          const response = await communicationService.searchUsers(searchTerm);
+          setUsers(response || []);
+        } catch (e) {
+          console.error('Failed to search users via communication service, falling back to user service', e);
+          // Fallback sur le service utilisateur global
+          const r = await userService.getUsers({ all: true, search: searchTerm });
+          setUsers(r.data || []);
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      fetchUsers();
       setSelectedUsers([]);
       setGroupName('');
       setMode('direct');
-      setSearchTerm('');
     }
-  }, [isOpen]);
+  }, [isOpen, searchTerm]);
 
   const existingPrivateUserIds = conversations
     .filter(c => c.type === 'private' && c.other_user)
@@ -38,7 +51,7 @@ const NewConversationModal = ({ isOpen, onClose, onSelectUser }) => {
   const filteredUsers = users.filter(u =>
     u.id !== currentUser?.id &&
     (mode === 'group' ? true : !existingPrivateUserIds.includes(u.id)) &&
-    (u.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    ((u.name || u.full_name)?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       u.email?.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
@@ -169,7 +182,9 @@ const NewConversationModal = ({ isOpen, onClose, onSelectUser }) => {
                         {isSelected ? <Check size={15} /> : (u.name ? u.name.charAt(0).toUpperCase() : 'U')}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className={`text-sm font-medium truncate transition-colors ${isSelected ? 'text-[#1428C9]' : 'text-gray-800'}`}>{u.name}</p>
+                        <p className={`text-sm font-medium truncate transition-colors ${isSelected ? 'text-[#1428C9]' : 'text-gray-800'}`}>
+                          {u.name || u.full_name || `${u.prenom} ${u.nom}`}
+                        </p>
                         <p className="text-xs text-gray-400 truncate">{u.email}</p>
                       </div>
                       {mode === 'group' && (

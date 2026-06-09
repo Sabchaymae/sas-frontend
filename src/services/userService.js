@@ -44,7 +44,7 @@ const mapUserToApi = (userData) => {
 
 /**
  * Service for managing users via the API Gateway.
- * baseURL = http://localhost:8080/api/identity
+ * baseURL = http://localhost:8090/api/identity
  * Nginx strips /api/identity/ → Laravel receives /v1/users
  * So all paths here must start with 'v1/...'
  */

@@ -31,7 +31,7 @@ class PaddleOcrProvider {
       // Construct the API Gateway URL for the OCR service
       // We use window.location.hostname so it works on both PC (localhost) and Mobile (192.168.x.x)
       const hostname = window.location.hostname;
-      const gatewayUrl = import.meta.env.VITE_GATEWAY_URL || `http://${hostname}:8080`;
+      const gatewayUrl = import.meta.env.VITE_GATEWAY_URL || `http://${hostname}:8090`;
       const ocrEndpoint = `${gatewayUrl}/api/ocr/v1/scan-cin`;
 
       const response = await axios.post(ocrEndpoint, formData, {
