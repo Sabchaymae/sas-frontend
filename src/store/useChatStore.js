@@ -11,11 +11,16 @@ const useChatStore = create((set, get) => ({
   currentMessagesPage: 1,
   hasMoreMessages: true,
   typingUsers: {}, // { conversationId: [userIds] }
+<<<<<<< HEAD
   onlineUsers: [1, 2, 3, 4], // Demo default online users
+=======
+  onlineUsers: [], // Array of user IDs (strings)
+>>>>>>> import/master
   totalUnreadMessages: 0, // Compteur global pour le badge du Header
 
   // Helper to update online status across all relevant state parts
   _updateOnlineStatus: (state, onlineIds) => {
+<<<<<<< HEAD
     console.log('📡 [Presence] _updateOnlineStatus called with onlineIds:', onlineIds);
     console.log('📡 [Presence] Current state.conversations:', state.conversations);
     
@@ -23,18 +28,30 @@ const useChatStore = create((set, get) => ({
       if (c.type === 'private' && c.other_user) {
         const isOnline = onlineIds.includes(String(c.other_user.id));
         console.log(`📡 [Presence] User ${c.other_user.id} (${c.other_user.name}) is online:`, isOnline);
+=======
+    const updateConv = (c) => {
+      if (c.type === 'private' && c.other_user) {
+>>>>>>> import/master
         return {
           ...c,
           other_user: {
             ...c.other_user,
+<<<<<<< HEAD
             online: isOnline
+=======
+            online: onlineIds.includes(String(c.other_user.id))
+>>>>>>> import/master
           }
         };
       }
       return c;
     };
 
+<<<<<<< HEAD
     const result = {
+=======
+    return {
+>>>>>>> import/master
       conversations: state.conversations.map(updateConv),
       archivedConversations: state.archivedConversations.map(updateConv),
       activeConversation: (state.activeConversation?.type === 'private' && state.activeConversation.other_user)
@@ -47,9 +64,12 @@ const useChatStore = create((set, get) => ({
           }
         : state.activeConversation
     };
+<<<<<<< HEAD
     
     console.log('📡 [Presence] _updateOnlineStatus result:', result);
     return result;
+=======
+>>>>>>> import/master
   },
 
   fetchConversations: async () => {
@@ -65,8 +85,13 @@ const useChatStore = create((set, get) => ({
         : [];
       
       set((state) => {
+<<<<<<< HEAD
         // Create base state with new data
         const baseState = {
+=======
+        // First set the new data
+        const nextState = {
+>>>>>>> import/master
           ...state,
           conversations: newConversations,
           archivedConversations,
@@ -74,6 +99,7 @@ const useChatStore = create((set, get) => ({
         };
 
         // Then apply current online status to this new data
+<<<<<<< HEAD
         const withOnlineStatus = state._updateOnlineStatus(baseState, state.onlineUsers);
         
         return {
@@ -81,6 +107,19 @@ const useChatStore = create((set, get) => ({
           conversations: withOnlineStatus.conversations,
           archivedConversations: withOnlineStatus.archivedConversations,
           activeConversation: withOnlineStatus.activeConversation
+=======
+        const withOnlineStatus = state._updateOnlineStatus(nextState, state.onlineUsers);
+
+        // Also sync activeConversation if it's in the refreshed list
+        const refreshedActive = nextState.conversations.find(
+          c => c.id === state.activeConversation?.id
+        );
+
+        return {
+          ...nextState,
+          ...withOnlineStatus,
+          ...(refreshedActive ? { activeConversation: withOnlineStatus.conversations.find(c => c.id === refreshedActive.id) || refreshedActive } : {}),
+>>>>>>> import/master
         };
       });
     } catch (error) {
@@ -103,6 +142,7 @@ const useChatStore = create((set, get) => ({
   },
 
   setActiveConversation: (conversation) => {
+<<<<<<< HEAD
     set((state) => {
       let updatedConv = conversation;
       if (updatedConv?.type === 'private' && updatedConv?.other_user) {
@@ -121,6 +161,14 @@ const useChatStore = create((set, get) => ({
         hasMoreMessages: true,
         loadingMoreMessages: false
       };
+=======
+    set({ 
+      activeConversation: conversation, 
+      messages: [], 
+      currentMessagesPage: 1, 
+      hasMoreMessages: true, 
+      loadingMoreMessages: false 
+>>>>>>> import/master
     });
     if (conversation) {
       get().fetchMessages(conversation.id);
@@ -165,6 +213,17 @@ const useChatStore = create((set, get) => ({
 
   setMessages: (messages) => set({ messages }),
 
+<<<<<<< HEAD
+=======
+  updateMessageReactions: (messageId, reactions) => {
+    set((state) => ({
+      messages: state.messages.map(msg =>
+        msg.id === messageId ? { ...msg, reactions } : msg
+      )
+    }));
+  },
+
+>>>>>>> import/master
   updateMessage: async (messageId, data) => {
     const { activeConversation } = get();
     if (!activeConversation) return;
@@ -190,6 +249,7 @@ const useChatStore = create((set, get) => ({
     const { activeConversation } = get();
     if (!activeConversation) return;
 
+<<<<<<< HEAD
     try {
       await communicationService.deleteMessage(activeConversation.id, messageId);
       
@@ -201,6 +261,28 @@ const useChatStore = create((set, get) => ({
       return true;
     } catch (error) {
       console.error('Failed to delete message', error);
+=======
+    // Optimistic UI : marquer immédiatement comme supprimé
+    set((state) => ({
+      messages: state.messages.map(msg =>
+        msg.id === messageId
+          ? { ...msg, is_deleted: true, content: null, attachments: [] }
+          : msg
+      )
+    }));
+
+    try {
+      await communicationService.deleteMessage(activeConversation.id, messageId);
+      return true;
+    } catch (error) {
+      console.error('Failed to delete message', error);
+      // Rollback si erreur
+      set((state) => ({
+        messages: state.messages.map(msg =>
+          msg.id === messageId ? { ...msg, is_deleted: false } : msg
+        )
+      }));
+>>>>>>> import/master
       throw error;
     }
   },
@@ -216,14 +298,22 @@ const useChatStore = create((set, get) => ({
        message.content.includes('a quitté'));
     
     if (isGroupMemberChange) {
+<<<<<<< HEAD
       // Refresh the entire conversation to get updated participants
+=======
+      // Refresh the entire conversation to get updated participants and user_status
+>>>>>>> import/master
       get().fetchConversations();
       if (activeConversation && activeConversation.id === message.conversation_id) {
         communicationService.getConversation(message.conversation_id).then(response => {
           const updatedConv = response?.data || response;
           set((state) => ({
             conversations: state.conversations.map(c => c.id === updatedConv.id ? updatedConv : c),
+<<<<<<< HEAD
             activeConversation: updatedConv
+=======
+            activeConversation: state.activeConversation?.id === updatedConv.id ? updatedConv : state.activeConversation,
+>>>>>>> import/master
           }));
         });
       }
@@ -264,7 +354,11 @@ const useChatStore = create((set, get) => ({
       created_at: new Date().toISOString(),
       user: {
         id: user.id,
+<<<<<<< HEAD
         name: user.full_name || `${user.prenom} ${user.nom}`,
+=======
+        name: user.full_name || `${user.first_name} ${user.last_name}`,
+>>>>>>> import/master
       },
       attachments: [] // Temporary empty attachments
     };
@@ -532,12 +626,26 @@ const useChatStore = create((set, get) => ({
     }
   },
 
+<<<<<<< HEAD
   leaveGroup: async (id) => {
     try {
       await communicationService.leaveGroup(id);
       set((state) => ({
         conversations: state.conversations.filter(c => c.id !== id),
         activeConversation: state.activeConversation?.id === id ? null : state.activeConversation
+=======
+  leaveGroup: async (conversationId) => {
+    try {
+      await communicationService.leaveGroup(conversationId);
+      // Update local conversation's user_status to "left"
+      set((state) => ({
+        conversations: state.conversations.map(c => 
+          c.id === conversationId ? { ...c, user_status: 'left' } : c
+        ),
+        activeConversation: state.activeConversation?.id === conversationId 
+          ? { ...state.activeConversation, user_status: 'left' } 
+          : state.activeConversation
+>>>>>>> import/master
       }));
     } catch (error) {
       console.error('Failed to leave group', error);
@@ -545,6 +653,7 @@ const useChatStore = create((set, get) => ({
     }
   },
 
+<<<<<<< HEAD
   removeGroupMember: async (id, userId) => {
     try {
       await communicationService.removeGroupMember(id, userId);
@@ -554,6 +663,31 @@ const useChatStore = create((set, get) => ({
       set((state) => ({
         conversations: state.conversations.map(c => c.id === id ? updatedConv : c),
         activeConversation: state.activeConversation?.id === id ? updatedConv : state.activeConversation
+=======
+  addGroupMembers: async (conversationId, userIds) => {
+    try {
+      await communicationService.addGroupMembers(conversationId, userIds);
+      const response = await communicationService.getConversation(conversationId);
+      const updatedConv = response?.data || response;
+      set((state) => ({
+        conversations: state.conversations.map(c => c.id === conversationId ? updatedConv : c),
+        activeConversation: state.activeConversation?.id === conversationId ? updatedConv : state.activeConversation
+      }));
+    } catch (error) {
+      console.error('Failed to add group members', error);
+      throw error;
+    }
+  },
+
+  removeGroupMember: async (conversationId, userId) => {
+    try {
+      await communicationService.removeGroupMember(conversationId, userId);
+      const response = await communicationService.getConversation(conversationId);
+      const updatedConv = response?.data || response;
+      set((state) => ({
+        conversations: state.conversations.map(c => c.id === conversationId ? updatedConv : c),
+        activeConversation: state.activeConversation?.id === conversationId ? updatedConv : state.activeConversation
+>>>>>>> import/master
       }));
     } catch (error) {
       console.error('Failed to remove group member', error);
@@ -561,18 +695,53 @@ const useChatStore = create((set, get) => ({
     }
   },
 
+<<<<<<< HEAD
   deleteGroup: async (id) => {
     try {
       await communicationService.deleteGroup(id);
       set((state) => ({
         conversations: state.conversations.filter(c => c.id !== id),
         activeConversation: state.activeConversation?.id === id ? null : state.activeConversation
+=======
+  deleteGroup: async (conversationId) => {
+    try {
+      await communicationService.deleteGroup(conversationId);
+      // Update local conversation's user_status to "removed" for the admin
+      set((state) => ({
+        conversations: state.conversations.map(c => 
+          c.id === conversationId ? { ...c, user_status: 'removed' } : c
+        ),
+        activeConversation: state.activeConversation?.id === conversationId 
+          ? { ...state.activeConversation, user_status: 'removed' } 
+          : state.activeConversation
+>>>>>>> import/master
       }));
     } catch (error) {
       console.error('Failed to delete group', error);
       throw error;
     }
+<<<<<<< HEAD
   }
+=======
+  },
+
+  // Called when the OTHER user blocks/unblocks the current user in real time
+  setBlockedByUser: (blockerId, isBlocked) => {
+    set((state) => {
+      const updateConv = (conv) => {
+        if (!conv || conv.type !== 'private') return conv;
+        const otherUser = conv.other_user;
+        if (!otherUser || String(otherUser.id) !== String(blockerId)) return conv;
+        return { ...conv, has_blocked_me: isBlocked };
+      };
+      return {
+        conversations: state.conversations.map(updateConv),
+        archivedConversations: state.archivedConversations.map(updateConv),
+        activeConversation: updateConv(state.activeConversation),
+      };
+    });
+  },
+>>>>>>> import/master
 }));
 
 export default useChatStore;

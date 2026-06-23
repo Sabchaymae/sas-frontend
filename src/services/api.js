@@ -1,7 +1,11 @@
 import axios from 'axios';
 
 const api = axios.create({
+<<<<<<< HEAD
   baseURL: 'http://localhost:8090/api/identity/',
+=======
+  baseURL: 'http://localhost:8080/api/identity/',
+>>>>>>> import/master
   headers: {
     'Content-Type': 'application/json',
     'Accept': 'application/json',

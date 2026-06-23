@@ -1,8 +1,13 @@
+<<<<<<< HEAD
 import { useState, useEffect } from 'react';
+=======
+import { useState } from 'react';
+>>>>>>> import/master
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Package, Save } from 'lucide-react';
 
 const CATEGORIES = [
+<<<<<<< HEAD
   'Équipement Réseau',
   'Terminaux & Mobiles',
   'Cartes SIM & Recharges',
@@ -20,6 +25,25 @@ const FOURNISSEURS = [
   'Nokia',
   'Ericsson',
   'Cisco',
+=======
+  'Linge de lit',
+  'Produits ménagers',
+  'Salle de bain',
+  'Équipements chambre',
+  'Cuisine',
+  'Consommables',
+  'Mobilier',
+  'Électronique',
+];
+
+const FOURNISSEURS = [
+  'Textiles & Co',
+  'CleanPro',
+  'HôtelSupply',
+  'FreshLinen',
+  'ProEquip',
+  'AlgérieFournitures',
+>>>>>>> import/master
 ];
 
 const initialForm = {
@@ -32,6 +56,7 @@ const initialForm = {
   prixQuantite: '',
 };
 
+<<<<<<< HEAD
 const AddProductModal = ({ isOpen, onClose, onSave, productToEdit }) => {
   const [form, setForm] = useState(initialForm);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -81,6 +106,20 @@ const AddProductModal = ({ isOpen, onClose, onSave, productToEdit }) => {
     } finally {
       setIsSubmitting(false);
     }
+=======
+const AddProductModal = ({ isOpen, onClose, onSave }) => {
+  const [form, setForm] = useState(initialForm);
+
+  const handleChange = (field, value) => {
+    setForm(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    onSave(form);
+    setForm(initialForm);
+    onClose();
+>>>>>>> import/master
   };
 
   return (
@@ -113,12 +152,17 @@ const AddProductModal = ({ isOpen, onClose, onSave, productToEdit }) => {
                   <Package size={22} className="text-[#1428C9]" />
                 </div>
                 <div>
+<<<<<<< HEAD
                   <h3 className="text-lg font-black text-[#111827] tracking-tight">
                     {productToEdit ? 'Modifier le produit' : 'Ajouter un produit'}
                   </h3>
                   <p className="text-xs text-gray-400 font-medium mt-0.5">
                     {productToEdit ? 'Modifiez les informations du produit sélectionné' : 'Remplissez les informations du nouveau produit'}
                   </p>
+=======
+                  <h3 className="text-lg font-black text-[#111827] tracking-tight">Ajouter un produit</h3>
+                  <p className="text-xs text-gray-400 font-medium mt-0.5">Remplissez les informations du nouveau produit</p>
+>>>>>>> import/master
                 </div>
               </div>
               <button
@@ -208,7 +252,11 @@ const AddProductModal = ({ isOpen, onClose, onSave, productToEdit }) => {
                     min="0"
                     value={form.seuil}
                     onChange={(e) => handleChange('seuil', e.target.value)}
+<<<<<<< HEAD
                     placeholder="100"
+=======
+                    placeholder="20"
+>>>>>>> import/master
                     className="w-full px-4 py-3.5 bg-gray-50 border-2 border-gray-100 rounded-xl text-sm font-medium text-[#111827] placeholder:text-gray-300 focus:border-[#1428C9] focus:bg-white focus:ring-4 focus:ring-[#1428C9]/5 outline-none"
                   />
                 </div>
@@ -218,13 +266,22 @@ const AddProductModal = ({ isOpen, onClose, onSave, productToEdit }) => {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-[10px] font-black uppercase tracking-[0.15em] text-gray-500 mb-2">
+<<<<<<< HEAD
                     Prix normal (DH) *
+=======
+                    Prix normal (€) *
+>>>>>>> import/master
                   </label>
                   <input
                     type="number"
                     required
+<<<<<<< HEAD
                     step="0.01"
                     min="0"
+=======
+                    min="0"
+                    step="0.01"
+>>>>>>> import/master
                     value={form.prixNormal}
                     onChange={(e) => handleChange('prixNormal', e.target.value)}
                     placeholder="0.00"
@@ -233,6 +290,7 @@ const AddProductModal = ({ isOpen, onClose, onSave, productToEdit }) => {
                 </div>
                 <div>
                   <label className="block text-[10px] font-black uppercase tracking-[0.15em] text-gray-500 mb-2">
+<<<<<<< HEAD
                     Prix par quantité (Total)
                   </label>
                   <input
@@ -240,6 +298,18 @@ const AddProductModal = ({ isOpen, onClose, onSave, productToEdit }) => {
                     disabled
                     value={form.prixQuantite}
                     className="w-full px-4 py-3.5 bg-gray-100 border-2 border-gray-100 rounded-xl text-sm font-bold text-[#1428C9] outline-none cursor-not-allowed"
+=======
+                    Prix par quantité (€)
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value={form.prixQuantite}
+                    onChange={(e) => handleChange('prixQuantite', e.target.value)}
+                    placeholder="0.00"
+                    className="w-full px-4 py-3.5 bg-gray-50 border-2 border-gray-100 rounded-xl text-sm font-medium text-[#111827] placeholder:text-gray-300 focus:border-[#1428C9] focus:bg-white focus:ring-4 focus:ring-[#1428C9]/5 outline-none"
+>>>>>>> import/master
                   />
                 </div>
               </div>
@@ -255,11 +325,18 @@ const AddProductModal = ({ isOpen, onClose, onSave, productToEdit }) => {
                 </button>
                 <button
                   type="submit"
+<<<<<<< HEAD
                   disabled={isSubmitting}
                   className="px-8 py-3 bg-[#1428C9] text-white text-sm font-bold rounded-xl hover:bg-[#1428C9]/90 hover:shadow-lg hover:shadow-[#1428C9]/20 transition-all duration-200 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <Save size={16} />
                   {isSubmitting ? 'Chargement...' : 'Sauvegarder'}
+=======
+                  className="px-8 py-3 bg-[#1428C9] text-white text-sm font-bold rounded-xl hover:bg-[#1428C9]/90 hover:shadow-lg hover:shadow-[#1428C9]/20 transition-all duration-200 flex items-center gap-2"
+                >
+                  <Save size={16} />
+                  Sauvegarder
+>>>>>>> import/master
                 </button>
               </div>
             </form>

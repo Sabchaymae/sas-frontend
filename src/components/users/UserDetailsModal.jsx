@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { X, Mail, Phone, Calendar, MapPin, CreditCard, Shield } from 'lucide-react';
 import { cn } from '../../utils/cn';
 import Badge from '../common/Badge';
@@ -7,6 +8,41 @@ import { ROLE_STYLES, STATUS_STYLES } from '../../constants/users';
 const UserDetailsModal = ({ isOpen, onClose, user }) => {
   if (!isOpen || !user) return null;
 
+=======
+import { X, Mail, Phone, Calendar, MapPin, CreditCard, Shield, Copy, CheckCircle, Key, User } from 'lucide-react';
+import { cn } from '../../utils/cn';
+import Badge from '../common/Badge';
+import Button from '../common/Button';
+import { getRoleStyle, STATUS_STYLES } from '../../constants/users';
+import { useState } from 'react';
+
+const UserDetailsModal = ({ isOpen, onClose, user }) => {
+  const [copied, setCopied] = useState({ identifiant: false, mot_de_passe: false, both: false });
+
+  if (!isOpen || !user) return null;
+
+  const handleCopy = async (text, field) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(prev => ({ ...prev, [field]: true }));
+      setTimeout(() => setCopied(prev => ({ ...prev, [field]: false })), 2000);
+    } catch (err) {
+      console.error('Failed to copy:', err);
+    }
+  };
+
+  const handleCopyBoth = async () => {
+    try {
+      const combined = `Identifiant: ${user.generatedCredentials?.identifiant}\nMot de passe: ${user.generatedCredentials?.mot_de_passe}`;
+      await navigator.clipboard.writeText(combined);
+      setCopied(prev => ({ ...prev, both: true }));
+      setTimeout(() => setCopied(prev => ({ ...prev, both: false })), 2000);
+    } catch (err) {
+      console.error('Failed to copy both:', err);
+    }
+  };
+
+>>>>>>> import/master
   const infoGroups = [
     {
       title: 'Informations personnelles',
@@ -56,7 +92,11 @@ const UserDetailsModal = ({ isOpen, onClose, user }) => {
             <div className="min-w-0">
               <h2 className="text-xl sm:text-2xl font-bold text-[#111827] truncate sm:whitespace-normal">{user.prenom} {user.nom}</h2>
               <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 sm:gap-3 mt-2">
+<<<<<<< HEAD
                 <Badge className={ROLE_STYLES[user.role]}>{user.role}</Badge>
+=======
+                <Badge className={getRoleStyle(user.role)}>{user.role}</Badge>
+>>>>>>> import/master
                 <Badge className={STATUS_STYLES[user.statut]}>{user.statut}</Badge>
               </div>
             </div>
@@ -65,6 +105,61 @@ const UserDetailsModal = ({ isOpen, onClose, user }) => {
 
         {/* Content */}
         <div className="flex-1 overflow-y-auto p-6 sm:p-8">
+<<<<<<< HEAD
+=======
+          {user.generatedCredentials && (
+            <div className="mb-8 p-5 bg-amber-50 border border-amber-200 rounded-sm">
+              <h3 className="text-[10px] font-bold text-amber-700 uppercase tracking-[0.15em] mb-4 flex items-center gap-2">
+              <Key size={14} />
+              Identifiants de connexion (à conserver)
+            </h3>
+              <div className="space-y-3">
+                <div className="bg-white p-3 rounded-sm border border-amber-200">
+                  <div className="flex justify-between items-center gap-3">
+                    <div className="flex-1 text-left">
+                      <label className="text-[10px] font-bold text-amber-600 uppercase tracking-wider">Identifiant</label>
+                      <p className="text-sm font-mono text-[#111827] mt-1">{user.generatedCredentials.identifiant}</p>
+                    </div>
+                    <button
+                      onClick={() => handleCopy(user.generatedCredentials.identifiant, 'identifiant')}
+                      className="p-2 rounded-sm bg-white border border-amber-200 text-amber-600 hover:bg-amber-50 transition-all"
+                    >
+                      {copied.identifiant ? <CheckCircle size={16} className="text-green-600" /> : <Copy size={16} />}
+                    </button>
+                  </div>
+                </div>
+                <div className="bg-white p-3 rounded-sm border border-amber-200">
+                  <div className="flex justify-between items-center gap-3">
+                    <div className="flex-1 text-left">
+                      <label className="text-[10px] font-bold text-amber-600 uppercase tracking-wider">Mot de passe</label>
+                      <p className="text-sm font-mono text-[#111827] mt-1">{user.generatedCredentials.mot_de_passe}</p>
+                    </div>
+                    <button
+                      onClick={() => handleCopy(user.generatedCredentials.mot_de_passe, 'mot_de_passe')}
+                      className="p-2 rounded-sm bg-white border border-amber-200 text-amber-600 hover:bg-amber-50 transition-all"
+                    >
+                      {copied.mot_de_passe ? <CheckCircle size={16} className="text-green-600" /> : <Copy size={16} />}
+                    </button>
+                  </div>
+                </div>
+                <button
+                  onClick={handleCopyBoth}
+                  className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-amber-600 text-white rounded-sm hover:bg-amber-700 transition-all"
+                >
+                  {copied.both ? (
+                    <CheckCircle size={16} className="text-green-200" />
+                  ) : (
+                    <Copy size={16} />
+                  )}
+                  <span className="font-bold text-xs">
+                    {copied.both ? 'Copié !' : 'Copier les deux identifiants'}
+                  </span>
+                </button>
+              </div>
+            </div>
+          )}
+          
+>>>>>>> import/master
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 sm:gap-10">
             {infoGroups.map((group) => (
               <div key={group.title} className="space-y-6">

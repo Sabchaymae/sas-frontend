@@ -3,9 +3,15 @@ import { Eye, Pencil, Trash2 } from 'lucide-react';
 import Badge from '../common/Badge';
 import Button from '../common/Button';
 import { cn } from '../../utils/cn';
+<<<<<<< HEAD
 import { ROLE_STYLES, STATUS_STYLES } from '../../constants/users';
 
 const UserTableRow = memo(({ user, onEdit, onView, onDelete, canView = true, canEdit = true, canDelete = true }) => {
+=======
+import { getRoleStyle, STATUS_STYLES } from '../../constants/users';
+
+const UserTableRow = memo(({ user, onEdit, onView, onDelete, onToggleStatus }) => {
+>>>>>>> import/master
   return (
     <tr className="hover:bg-[#F0F3FF]/50 hover:scale-[1.01] hover:z-10 transition-all duration-300 ease-in-out group border-b border-gray-50 last:border-0 relative animate-in fade-in slide-in-up">
       {/* 1. Photo */}
@@ -20,7 +26,11 @@ const UserTableRow = memo(({ user, onEdit, onView, onDelete, canView = true, can
           )}
           <div className={cn(
             "absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border border-white",
+<<<<<<< HEAD
             user.isOnline ? "bg-green-500" : "bg-gray-300"
+=======
+            user.statut === 'Actif' ? "bg-green-500" : "bg-gray-300"
+>>>>>>> import/master
           )} />
         </div>
       </td>
@@ -40,7 +50,11 @@ const UserTableRow = memo(({ user, onEdit, onView, onDelete, canView = true, can
       {/* 4. Email */}
       <td className="px-2 py-3">
         <p className="text-[11px] text-gray-500 font-medium truncate max-w-[120px] group-hover:text-gray-700 transition-colors duration-200" title={user.email}>
+<<<<<<< HEAD
           {user.email}
+=======
+          {user.email || '-'}
+>>>>>>> import/master
         </p>
       </td>
 
@@ -63,7 +77,11 @@ const UserTableRow = memo(({ user, onEdit, onView, onDelete, canView = true, can
 
       {/* 7. Rôle */}
       <td className="px-2 py-3">
+<<<<<<< HEAD
         <Badge className={cn("text-[10px] px-1.5 py-0 whitespace-nowrap transition-all duration-300", ROLE_STYLES[user.role])}>{user.role}</Badge>
+=======
+        <Badge className={cn("text-[10px] px-1.5 py-0 whitespace-nowrap transition-all duration-300", getRoleStyle(user.role))}>{user.role}</Badge>
+>>>>>>> import/master
       </td>
 
       {/* 8. Date Naiss. */}
@@ -78,12 +96,25 @@ const UserTableRow = memo(({ user, onEdit, onView, onDelete, canView = true, can
 
       {/* 10. Statut */}
       <td className="px-2 py-3">
+<<<<<<< HEAD
         <Badge className={cn("text-[10px] px-1.5 py-0 whitespace-nowrap transition-all duration-300", STATUS_STYLES[user.statut])}>{user.statut}</Badge>
+=======
+        <button 
+          onClick={() => onToggleStatus && onToggleStatus(user.id)}
+          title={user.statut === 'Actif' ? 'Désactiver le compte' : 'Activer le compte'}
+          className="focus:outline-none transition-transform duration-200 hover:scale-105 active:scale-95 text-left"
+        >
+          <Badge className={cn("text-[10px] px-1.5 py-0 whitespace-nowrap transition-all duration-300 cursor-pointer shadow-sm hover:shadow hover:bg-opacity-80", STATUS_STYLES[user.statut])}>
+            {user.statut}
+          </Badge>
+        </button>
+>>>>>>> import/master
       </td>
 
       {/* 11. Actions */}
       <td className="px-2 py-3 text-right">
         <div className="flex items-center justify-end gap-0.5 transition-all duration-300">
+<<<<<<< HEAD
           {canView && (
             <Button variant="ghost" size="sm" onClick={() => onView(user)} title="Voir le profil" icon={Eye} className="w-8 h-8 p-0 text-gray-400 hover:text-[#1428C9] hover:bg-[#F0F3FF]" />
           )}
@@ -93,6 +124,11 @@ const UserTableRow = memo(({ user, onEdit, onView, onDelete, canView = true, can
           {canDelete && (
             <Button variant="ghost" size="sm" onClick={() => onDelete(user)} title="Supprimer" icon={Trash2} className="w-8 h-8 p-0 text-gray-400 hover:text-red-600 hover:bg-red-50" />
           )}
+=======
+          <Button variant="ghost" size="sm" onClick={() => onView(user)} title="Voir le profil" icon={Eye} className="w-8 h-8 p-0 text-gray-400 hover:text-[#1428C9] hover:bg-[#F0F3FF]" />
+          <Button variant="ghost" size="sm" onClick={() => onEdit(user)} title="Modifier" icon={Pencil} className="w-8 h-8 p-0 text-gray-400 hover:text-orange-600 hover:bg-orange-50" />
+          <Button variant="ghost" size="sm" onClick={() => onDelete(user)} title="Supprimer" icon={Trash2} className="w-8 h-8 p-0 text-gray-400 hover:text-red-600 hover:bg-red-50" />
+>>>>>>> import/master
         </div>
       </td>
     </tr>

@@ -30,7 +30,12 @@ const passwordSchema = z
 export const loginSchema = z.object({
   email: z
     .string()
+<<<<<<< HEAD
     .min(1, "L'adresse email ou l'identifiant est requis"),
+=======
+    .min(1, "L'adresse email est requise")
+    .email("Format d'email invalide"),
+>>>>>>> import/master
   password: z
     .string()
     .min(1, 'Le mot de passe est requis'),

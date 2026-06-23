@@ -1,13 +1,27 @@
+<<<<<<< HEAD
 import { useState, useCallback, useMemo, lazy, Suspense } from 'react';
 import UserTable from '../components/users/UserTable';
 import UserFilters from '../components/users/UserFilters';
 import { useUsers } from '../hooks/useUsers';
 import usePermissions from '../hooks/usePermissions';
+=======
+import { useState, useCallback, useMemo, useEffect, lazy, Suspense } from 'react';
+import UserTable from '../components/users/UserTable';
+import UserFilters from '../components/users/UserFilters';
+import { useUsers } from '../hooks/useUsers';
+import api from '../services/api';
+import { USER_ROLES } from '../constants/users';
+import Alert from '../components/common/Alert';
+>>>>>>> import/master
 
 // Lazy load heavy components
 const UserDrawer = lazy(() => import('../components/users/UserDrawer'));
 const UserDetailsModal = lazy(() => import('../components/users/UserDetailsModal'));
 const ConfirmationModal = lazy(() => import('../components/users/ConfirmationModal'));
+<<<<<<< HEAD
+=======
+const UserCredentialsModal = lazy(() => import('../components/users/UserCredentialsModal'));
+>>>>>>> import/master
 
 const UsersPage = () => {
   const {
@@ -15,11 +29,16 @@ const UsersPage = () => {
     totalCount,
     searchQuery,
     setSearchQuery,
+<<<<<<< HEAD
+=======
+    setSearchQueryDirectly,
+>>>>>>> import/master
     filters,
     setFilters,
     addUser,
     updateUser,
     deleteUser,
+<<<<<<< HEAD
     loading: isLoading,
     error,
   } = useUsers();
@@ -36,6 +55,70 @@ const UsersPage = () => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
   const [userToDelete, setUserToDelete] = useState(null);
+=======
+    toggleUserStatus,
+    loading: isLoading,
+    error,
+    currentPage,
+    totalPages,
+    perPage,
+    setCurrentPage: onPageChange,
+  } = useUsers();
+
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isCredentialsModalOpen, setIsCredentialsModalOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [userToDelete, setUserToDelete] = useState(null);
+  const [newCredentials, setNewCredentials] = useState(null);
+
+  const [availableRoles, setAvailableRoles] = useState([]);
+
+  const fetchAvailableRoles = useCallback(async () => {
+    try {
+      const response = await api.get('v1/roles-permissions/roles');
+      if (response && response.success) {
+        const apiRoles = response.roles.map(r => ({
+          value: r.slug || r.name.toLowerCase(),
+          label: r.name
+        }));
+
+        // Merge with static default roles from constants for compatibility/safety
+        const staticRoles = Object.values(USER_ROLES).map(role => ({
+          value: role,
+          label: role.charAt(0).toUpperCase() + role.slice(1)
+        }));
+
+        // Filter out static roles that already exist in API roles
+        const filteredStatic = staticRoles.filter(
+          sr => !apiRoles.some(ar => ar.value === sr.value)
+        );
+
+        setAvailableRoles([...apiRoles, ...filteredStatic]);
+      } else {
+        // Fallback if success flag is missing or not true
+        const staticRoles = Object.values(USER_ROLES).map(role => ({
+          value: role,
+          label: role.charAt(0).toUpperCase() + role.slice(1)
+        }));
+        setAvailableRoles(staticRoles);
+      }
+    } catch (err) {
+      console.error('Error fetching dynamic roles:', err);
+      // Fallback on error
+      const staticRoles = Object.values(USER_ROLES).map(role => ({
+        value: role,
+        label: role.charAt(0).toUpperCase() + role.slice(1)
+      }));
+      setAvailableRoles(staticRoles);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchAvailableRoles();
+  }, [fetchAvailableRoles]);
+>>>>>>> import/master
 
   const handleNewUser = useCallback(() => {
     setSelectedUser(null);
@@ -70,6 +153,7 @@ const UsersPage = () => {
   }, [setFilters]);
 
   const handleResetFilters = useCallback(() => {
+<<<<<<< HEAD
     setSearchQuery('');
     setFilters({ role: '', statut: '', dateCreation: '' });
   }, [setSearchQuery, setFilters]);
@@ -79,15 +163,38 @@ const UsersPage = () => {
       return await updateUser(selectedUser.id, data);
     } else {
       return await addUser(data);
+=======
+    setSearchQueryDirectly('');
+    setFilters({ role: '', statut: '' });
+  }, [setSearchQueryDirectly, setFilters]);
+
+  const handleDrawerSubmit = useCallback(async (data) => {
+    if (selectedUser) {
+      await updateUser(selectedUser.id, data);
+    } else {
+      const result = await addUser(data);
+      if (result?.credentials) {
+        setNewCredentials(result.credentials);
+        setIsCredentialsModalOpen(true);
+      }
+>>>>>>> import/master
     }
   }, [selectedUser, updateUser, addUser]);
 
   return (
     <div className="w-full mx-auto pb-12 space-y-8">
       {error && (
+<<<<<<< HEAD
         <div className="p-4 bg-red-50 text-red-600 rounded-lg border border-red-200 animate-in fade-in zoom-in duration-300">
           {error}
         </div>
+=======
+        <Alert 
+          type="error" 
+          message={error} 
+          dismissible={true}
+        />
+>>>>>>> import/master
       )}
       
       {/* Filters section */}
@@ -100,7 +207,11 @@ const UsersPage = () => {
           onFilterChange={handleFilterChange}
           onReset={handleResetFilters}
           onNewUser={handleNewUser}
+<<<<<<< HEAD
           canAdd={canAdd}
+=======
+          availableRoles={availableRoles}
+>>>>>>> import/master
         />
       </div>
       
@@ -112,9 +223,18 @@ const UsersPage = () => {
           onView={handleViewUser}
           onDelete={handleDeleteClick}
           isLoading={isLoading}
+<<<<<<< HEAD
           canView={canView}
           canEdit={canEdit}
           canDelete={canDelete}
+=======
+          onToggleStatus={toggleUserStatus}
+          currentPage={currentPage}
+          totalPages={totalPages}
+          totalCount={totalCount}
+          perPage={perPage}
+          onPageChange={onPageChange}
+>>>>>>> import/master
         />
       </div>
 
@@ -125,6 +245,11 @@ const UsersPage = () => {
             onClose={() => setIsDrawerOpen(false)}
             onSubmit={handleDrawerSubmit}
             initialData={selectedUser}
+<<<<<<< HEAD
+=======
+            availableRoles={availableRoles}
+            onRefreshRoles={fetchAvailableRoles}
+>>>>>>> import/master
           />
         )}
 
@@ -147,6 +272,21 @@ const UsersPage = () => {
             type="danger"
           />
         )}
+<<<<<<< HEAD
+=======
+
+        {isCredentialsModalOpen && (
+          <UserCredentialsModal 
+            isOpen={isCredentialsModalOpen}
+            onClose={() => {
+              setIsCredentialsModalOpen(false);
+              setNewCredentials(null);
+              setIsDrawerOpen(false);
+            }}
+            credentials={newCredentials}
+          />
+        )}
+>>>>>>> import/master
       </Suspense>
     </div>
   );

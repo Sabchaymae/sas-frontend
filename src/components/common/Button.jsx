@@ -12,6 +12,10 @@ const Button = memo(({
   isLoading = false,
   fullWidth = false,
   disabled,
+<<<<<<< HEAD
+=======
+  type = 'button',
+>>>>>>> import/master
   ...props 
 }) => {
   const variants = {
@@ -32,6 +36,10 @@ const Button = memo(({
 
   return (
     <button 
+<<<<<<< HEAD
+=======
+      type={type}
+>>>>>>> import/master
       disabled={disabled || isActuallyLoading}
       className={cn(
         'flex items-center justify-center gap-2 rounded-sm font-bold transition-all duration-200 cubic-bezier(0.4, 0, 0.2, 1) active:scale-95 disabled:opacity-50 disabled:pointer-events-none min-w-fit',

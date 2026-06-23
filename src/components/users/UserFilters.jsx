@@ -1,15 +1,27 @@
 import { memo, useMemo } from 'react';
+<<<<<<< HEAD
 import { Search, RotateCcw, Plus, Calendar } from 'lucide-react';
+=======
+import { Search, RotateCcw, Plus } from 'lucide-react';
+>>>>>>> import/master
 import Button from '../common/Button';
 import Input from '../common/Input';
 import Select from '../common/Select';
 import { USER_ROLES, USER_STATUS } from '../../constants/users';
 
+<<<<<<< HEAD
 const UserFilters = memo(({ userCount, searchQuery, onSearchChange, filters, onFilterChange, onReset, onNewUser, canAdd = true }) => {
   const roleOptions = useMemo(() => [
     { value: '', label: 'Tous les rôles' },
     ...Object.values(USER_ROLES).map(role => ({ value: role, label: role }))
   ], []);
+=======
+const UserFilters = memo(({ userCount, searchQuery, onSearchChange, filters, onFilterChange, onReset, onNewUser, availableRoles = [] }) => {
+  const roleOptions = useMemo(() => [
+    { value: '', label: 'Tous les rôles' },
+    ...availableRoles
+  ], [availableRoles]);
+>>>>>>> import/master
 
   const statusOptions = useMemo(() => [
     { value: '', label: 'Tous les statuts' },
@@ -29,11 +41,17 @@ const UserFilters = memo(({ userCount, searchQuery, onSearchChange, filters, onF
             <span className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Mise à jour en temps réel</span>
           </div>
         </div>
+<<<<<<< HEAD
         {canAdd && (
           <Button onClick={onNewUser} icon={Plus} className="w-full sm:w-auto h-12 active:scale-95 transition-all duration-300">
             Nouvel utilisateur
           </Button>
         )}
+=======
+        <Button onClick={onNewUser} icon={Plus} className="w-full sm:w-auto h-12 active:scale-95 transition-all duration-300">
+          Nouvel utilisateur
+        </Button>
+>>>>>>> import/master
       </div>
 
       <div className="bg-white p-2 md:p-3 rounded-sm border border-slate-100 transition-all duration-300 flex flex-col gap-3">
@@ -62,6 +80,7 @@ const UserFilters = memo(({ userCount, searchQuery, onSearchChange, filters, onF
               containerClassName="w-full lg:min-w-[180px]"
             />
 
+<<<<<<< HEAD
             {/* Date filter & Reset */}
             <div className="flex items-center gap-3 sm:col-span-2 lg:col-span-1">
               <Input
@@ -81,6 +100,16 @@ const UserFilters = memo(({ userCount, searchQuery, onSearchChange, filters, onF
                 <RotateCcw size={18} />
               </button>
             </div>
+=======
+            {/* Reset button */}
+            <button
+              onClick={onReset}
+              title="Réinitialiser les filtres"
+              className="flex items-center justify-center w-12 h-12 bg-[#1428C9] text-white rounded-sm hover:bg-[#1428C9]/90 active:scale-90 transition-all duration-300 cubic-bezier(0.4, 0, 0.2, 1) shrink-0 shadow-lg shadow-[#1428C9]/10"
+            >
+              <RotateCcw size={18} />
+            </button>
+>>>>>>> import/master
           </div>
         </div>
       </div>

@@ -1,8 +1,14 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
+<<<<<<< HEAD
 import { Eye, Pencil, Trash2, ChevronDown, ChevronUp, Package, ArrowUpDown } from 'lucide-react';
 
 const ProductTable = ({ products, onView, onEdit, onDelete, onMovement, canView = true, canEdit = true, canDelete = true }) => {
+=======
+import { Eye, Pencil, Trash2, ChevronDown, ChevronUp, Package } from 'lucide-react';
+
+const ProductTable = ({ products, onView, onEdit, onDelete }) => {
+>>>>>>> import/master
   const [sortField, setSortField] = useState(null);
   const [sortDirection, setSortDirection] = useState('asc');
 
@@ -48,10 +54,16 @@ const ProductTable = ({ products, onView, onEdit, onDelete, onMovement, canView 
 
   const formatPrice = (price) => {
     return new Intl.NumberFormat('fr-FR', {
+<<<<<<< HEAD
       style: 'decimal',
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     }).format(price) + ' DH';
+=======
+      style: 'currency',
+      currency: 'EUR',
+    }).format(price);
+>>>>>>> import/master
   };
 
   if (products.length === 0) {
@@ -172,6 +184,7 @@ const ProductTable = ({ products, onView, onEdit, onDelete, onMovement, canView 
 
                 {/* Actions */}
                 <td className="px-6 py-4">
+<<<<<<< HEAD
                   <div className="flex items-center justify-end gap-1 transition-opacity duration-200">
                     {canEdit && (
                       <button
@@ -209,6 +222,30 @@ const ProductTable = ({ products, onView, onEdit, onDelete, onMovement, canView 
                         <Trash2 size={16} />
                       </button>
                     )}
+=======
+                  <div className="flex items-center justify-end gap-1 opacity-0 group-hover/row:opacity-100 transition-opacity duration-200">
+                    <button
+                      onClick={() => onView?.(product)}
+                      className="p-2 rounded-lg text-gray-400 hover:bg-[#1428C9]/10 hover:text-[#1428C9] transition-all duration-200"
+                      title="Voir"
+                    >
+                      <Eye size={16} />
+                    </button>
+                    <button
+                      onClick={() => onEdit?.(product)}
+                      className="p-2 rounded-lg text-gray-400 hover:bg-amber-50 hover:text-amber-600 transition-all duration-200"
+                      title="Modifier"
+                    >
+                      <Pencil size={16} />
+                    </button>
+                    <button
+                      onClick={() => onDelete?.(product)}
+                      className="p-2 rounded-lg text-gray-400 hover:bg-red-50 hover:text-red-500 transition-all duration-200"
+                      title="Supprimer"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+>>>>>>> import/master
                   </div>
                 </td>
               </motion.tr>

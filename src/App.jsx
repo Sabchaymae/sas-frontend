@@ -1,5 +1,6 @@
 
 import { Routes, Route, Navigate } from 'react-router-dom'
+<<<<<<< HEAD
 import { Suspense, lazy } from 'react'
 
 import RechargeCalculator from '@/pages/RechargeCalculator'
@@ -45,6 +46,38 @@ const LoadingSpinner = () => (
 function App() {
   return (
     <Suspense fallback={<LoadingSpinner />}>
+=======
+
+import RolesPermissionsPage from './pages/RolesPermissions/RolesPermissionsPage'
+import RechargeCalculator from './pages/RechargeCalculator'
+import DashboardPage from './pages/DashboardPage'
+
+import GuestGuard from '@/guards/GuestGuard'
+import AuthGuard from '@/guards/AuthGuard'
+
+import DashboardLayout from './components/layout/DashboardLayout'
+import UsersPage from './pages/UsersPage'
+import UserHistoryPage from './pages/UserHistoryPage'
+import SubscriptionsPage from './pages/SubscriptionsPage'
+import StockManagement from './pages/Stock/StockManagement'
+import WorkTimeManagement from './pages/WorkTime/WorkTimeManagement'
+
+import LoginPage from '@/pages/auth/LoginPage'
+import RegisterPage from '@/pages/auth/RegisterPage'
+import RegisterVerifyPage from '@/pages/auth/RegisterVerifyPage'
+import ForgotPasswordPage from '@/pages/auth/ForgotPasswordPage'
+import ForcePasswordChangePage from '@/pages/auth/ForcePasswordChangePage'
+import TwoFactorPage from '@/pages/auth/TwoFactorPage'
+import CommunicationPage from './pages/Communication/CommunicationPage'
+import ReactionToastContainer from './components/common/ReactionToast'
+import ActionToastContainer from './components/common/ActionToast'
+
+function App() {
+  return (
+    <>
+      <ReactionToastContainer />
+      <ActionToastContainer />
+>>>>>>> import/master
       <Routes>
         {/* Auth routes (Guest only) */}
         <Route path="/login" element={
@@ -75,9 +108,12 @@ function App() {
         {/* Public standalone tools */}
         <Route path="/recharge-calculator" element={<RechargeCalculator />} />
 
+<<<<<<< HEAD
         {/* Forbidden 403 Page */}
         <Route path="/403" element={<Forbidden />} />
 
+=======
+>>>>>>> import/master
         {/* Root redirects to login */}
         <Route path="/" element={<Navigate to="/login" replace />} />
 
@@ -88,6 +124,7 @@ function App() {
           </AuthGuard>
         }>
           <Route index element={<DashboardPage />} />
+<<<<<<< HEAD
           <Route path="users" element={
             <ProtectedRoute module="Utilisateurs" action="Lecture">
               <UsersPage />
@@ -137,13 +174,27 @@ function App() {
               <CommunicationPage />
             </ProtectedRoute>
           } />
+=======
+          <Route path="users" element={<UsersPage />} />
+          <Route path="historique" element={<UserHistoryPage />} />
+          <Route path="subscriptions" element={<SubscriptionsPage />} />
+          <Route path="settings" element={<div className="p-8"><h1 className="text-2xl font-bold">Paramètres</h1></div>} />
+          <Route path="roles-permissions" element={<RolesPermissionsPage />} />
+          <Route path="stock" element={<StockManagement />} />
+          <Route path="time" element={<WorkTimeManagement />} />
+          <Route path="communication" element={<CommunicationPage />} />
+>>>>>>> import/master
 
         </Route>
 
         {/* Default redirect */}
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
+<<<<<<< HEAD
     </Suspense>
+=======
+    </>
+>>>>>>> import/master
 
   )
 }

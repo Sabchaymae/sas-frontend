@@ -1,12 +1,19 @@
 import React from 'react';
 import { clsx } from 'clsx';
 import { Shield, Plus, Check, Pencil, Trash2 } from 'lucide-react';
+<<<<<<< HEAD
 
 const RoleList = ({ roles, selectedRoles, onToggleRole, onAddRole, onDoubleClickRole, onEditRole, onDeleteRole, canAdd = true, canEdit = true, canDelete = true }) => {
+=======
+import { getRoleStyle } from '../../../constants/users';
+
+const RoleList = ({ roles, selectedRoles, onToggleRole, onAddRole, onDoubleClickRole, onEditRole, onDeleteRole }) => {
+>>>>>>> import/master
   return (
     <div className="h-[400px] overflow-y-auto custom-scrollbar border border-gray-100 bg-white p-4">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {/* Add Role Button */}
+<<<<<<< HEAD
         {canAdd && (
           <button
             onClick={onAddRole}
@@ -18,6 +25,17 @@ const RoleList = ({ roles, selectedRoles, onToggleRole, onAddRole, onDoubleClick
             <span className="text-xs font-bold uppercase tracking-wider text-gray-500">Ajouter un rôle</span>
           </button>
         )}
+=======
+        <button
+          onClick={onAddRole}
+          className="p-5 border-2 border-dashed border-gray-200 bg-gray-50/50 hover:bg-gray-100 hover:border-primary/50 transition-all flex flex-col items-center justify-center gap-3 min-h-[120px]"
+        >
+          <div className="w-10 h-10 bg-white border border-gray-200 flex items-center justify-center text-primary">
+            <Plus size={24} />
+          </div>
+          <span className="text-xs font-bold uppercase tracking-wider text-gray-500">Ajouter un rôle</span>
+        </button>
+>>>>>>> import/master
 
         {/* Existing Roles */}
         {roles.map((role) => {
@@ -35,6 +53,7 @@ const RoleList = ({ roles, selectedRoles, onToggleRole, onAddRole, onDoubleClick
               )}
             >
               {/* Action Overlay (Hover) */}
+<<<<<<< HEAD
               {!role.isStatic && (canEdit || canDelete) && (
                 <div className="absolute bottom-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity z-10">
                   {canEdit && (
@@ -59,13 +78,40 @@ const RoleList = ({ roles, selectedRoles, onToggleRole, onAddRole, onDoubleClick
                       <Trash2 size={14} />
                     </button>
                   )}
+=======
+              {!role.isStatic && (
+                <div className="absolute bottom-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                  <button 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onEditRole(role);
+                    }}
+                    className="p-1.5 bg-white shadow-sm border border-gray-100 text-gray-400 hover:text-primary transition-colors"
+                  >
+                    <Pencil size={14} />
+                  </button>
+                  <button 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onDeleteRole(role.id);
+                    }}
+                    className="p-1.5 bg-white shadow-sm border border-gray-100 text-gray-400 hover:text-red-500 transition-colors"
+                  >
+                    <Trash2 size={14} />
+                  </button>
+>>>>>>> import/master
                 </div>
               )}
 
               <div className="flex items-center justify-between w-full">
                 <div className={clsx(
+<<<<<<< HEAD
                   "w-10 h-10 rounded-xl flex items-center justify-center text-white transition-all duration-200 group-hover:scale-110 shadow-md",
                   role.color || "bg-gray-500"
+=======
+                  "w-10 h-10 flex items-center justify-center border transition-all duration-200 group-hover:scale-110",
+                  getRoleStyle(role.name)
+>>>>>>> import/master
                 )}>
                   <Shield size={18} />
                 </div>

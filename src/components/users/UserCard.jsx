@@ -3,9 +3,15 @@ import { Eye, Pencil, Phone, Mail, Hash, MapPin, Trash2 } from 'lucide-react';
 import Badge from '../common/Badge';
 import Button from '../common/Button';
 import { cn } from '../../utils/cn';
+<<<<<<< HEAD
 import { ROLE_STYLES, STATUS_STYLES } from '../../constants/users';
 
 const UserCard = memo(({ user, onEdit, onView, onDelete, canView = true, canEdit = true, canDelete = true }) => {
+=======
+import { getRoleStyle, STATUS_STYLES } from '../../constants/users';
+
+const UserCard = memo(({ user, onEdit, onView, onDelete, onToggleStatus }) => {
+>>>>>>> import/master
   return (
     <div className="bg-white p-5 rounded-sm border border-gray-100 transition-all group relative overflow-hidden">
       {/* top section */}
@@ -20,7 +26,11 @@ const UserCard = memo(({ user, onEdit, onView, onDelete, canView = true, canEdit
           )}
           <div className={cn(
             "absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-white",
+<<<<<<< HEAD
             user.isOnline ? "bg-green-500" : "bg-gray-300"
+=======
+            user.statut === 'Actif' ? "bg-green-500" : "bg-gray-300"
+>>>>>>> import/master
           )} />
         </div>
         <div className="flex-1 min-w-0">
@@ -29,21 +39,44 @@ const UserCard = memo(({ user, onEdit, onView, onDelete, canView = true, canEdit
             <span className="text-xs font-bold text-[#1428C9] bg-[#F0F3FF] px-2 py-0.5 rounded-sm border border-[#1428C9]/5">
               {user.identifiant}
             </span>
+<<<<<<< HEAD
             <Badge className={cn("scale-90 origin-left", STATUS_STYLES[user.statut])}>
               {user.statut}
             </Badge>
+=======
+            <button 
+              onClick={() => onToggleStatus && onToggleStatus(user.id)}
+              title={user.statut === 'Actif' ? 'Désactiver le compte' : 'Activer le compte'}
+              className="focus:outline-none transition-transform duration-200 hover:scale-105 active:scale-95 text-left"
+            >
+              <Badge className={cn("scale-90 origin-left cursor-pointer shadow-sm hover:shadow hover:bg-opacity-80", STATUS_STYLES[user.statut])}>
+                {user.statut}
+              </Badge>
+            </button>
+>>>>>>> import/master
           </div>
         </div>
       </div>
 
       {/* Details Grid */}
       <div className="space-y-3 mb-6">
+<<<<<<< HEAD
         <div className="flex items-center gap-3 text-gray-500">
           <div className="w-8 h-8 rounded-sm bg-[#F9FAFB] flex items-center justify-center shrink-0">
             <Mail size={14} />
           </div>
           <p className="text-xs font-medium truncate">{user.email}</p>
         </div>
+=======
+        {user.email && (
+          <div className="flex items-center gap-3 text-gray-500">
+            <div className="w-8 h-8 rounded-sm bg-[#F9FAFB] flex items-center justify-center shrink-0">
+              <Mail size={14} />
+            </div>
+            <p className="text-xs font-medium truncate">{user.email}</p>
+          </div>
+        )}
+>>>>>>> import/master
         <div className="flex items-center gap-3 text-gray-500">
           <div className="w-8 h-8 rounded-sm bg-[#F9FAFB] flex items-center justify-center shrink-0">
             <Phone size={14} />
@@ -61,12 +94,17 @@ const UserCard = memo(({ user, onEdit, onView, onDelete, canView = true, canEdit
             <Hash size={14} />
           </div>
           <div className="flex items-center gap-2">
+<<<<<<< HEAD
             <Badge className={ROLE_STYLES[user.role]}>{user.role}</Badge>
+=======
+            <Badge className={getRoleStyle(user.role)}>{user.role}</Badge>
+>>>>>>> import/master
           </div>
         </div>
       </div>
 
       {/* Actions */}
+<<<<<<< HEAD
       {(canView || canEdit || canDelete) && (
         <div className="flex items-center gap-2 pt-4 border-t border-gray-50">
           {canView && (
@@ -103,6 +141,36 @@ const UserCard = memo(({ user, onEdit, onView, onDelete, canView = true, canEdit
           )}
         </div>
       )}
+=======
+      <div className="flex items-center gap-2 pt-4 border-t border-gray-50">
+        <Button
+          variant="secondary"
+          size="sm"
+          onClick={() => onView(user)}
+          className="flex-1 py-2.5"
+          icon={Eye}
+        >
+          Voir
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => onEdit(user)}
+          className="flex-1 py-2.5"
+          icon={Pencil}
+        >
+          Éditer
+        </Button>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => onDelete(user)}
+          className="w-10 h-10 p-0 text-red-500 hover:text-red-600 hover:bg-red-50 shrink-0"
+          icon={Trash2}
+          title="Supprimer"
+        />
+      </div>
+>>>>>>> import/master
     </div>
   );
 });

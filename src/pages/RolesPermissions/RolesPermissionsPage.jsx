@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import RoleList from './components/RoleList';
 import PermissionMatrix from './components/PermissionMatrix';
 import UserList from './components/UserList';
+<<<<<<< HEAD
 import RoleDrawer from './components/RoleDrawer';
 import ConfirmationModal from '../../components/users/ConfirmationModal';
 import { Save, ShieldCheck, X } from 'lucide-react';
@@ -9,6 +10,12 @@ import { clsx } from 'clsx';
 import api from '../../services/api';
 import { USER_ROLES, ROLE_STYLES } from '../../constants/users';
 import usePermissions from '../../hooks/usePermissions';
+=======
+import { Save, ShieldCheck, X } from 'lucide-react';
+import { clsx } from 'clsx';
+import api from '../../services/api';
+import { USER_ROLES } from '../../constants/users';
+>>>>>>> import/master
 
 const RolesPermissionsPage = () => {
   const [step, setStep] = useState(1);
@@ -23,21 +30,29 @@ const RolesPermissionsPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
 
   // Modal State
+<<<<<<< HEAD
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [roleToDelete, setRoleToDelete] = useState(null);
+=======
+  const [isModalOpen, setIsModalOpen] = useState(false);
+>>>>>>> import/master
   const [newRoleName, setNewRoleName] = useState('');
 
   const [permissions, setPermissions] = useState({});
   const [editingRole, setEditingRole] = useState(null);
 
+<<<<<<< HEAD
   const { hasPermission } = usePermissions();
+=======
+>>>>>>> import/master
 
   // Fetch Roles on mount
   React.useEffect(() => {
     fetchRoles();
   }, []);
 
+<<<<<<< HEAD
   // Role color mapping
   const getRoleColor = (roleName) => {
     if (!roleName) return 'bg-gradient-to-br from-gray-500 to-gray-600';
@@ -82,10 +97,13 @@ const RolesPermissionsPage = () => {
     return customColors[hash % customColors.length];
   };
 
+=======
+>>>>>>> import/master
   const fetchRoles = async () => {
     try {
 
       const response = await api.get('v1/roles-permissions/roles');
+<<<<<<< HEAD
       console.log("API Response:", response); // Debug log
       
       if (response.success) {
@@ -101,12 +119,23 @@ const RolesPermissionsPage = () => {
           };
         });
         console.log("Processed API roles:", apiRoles); // Debug log
+=======
+      if (response.success) {
+        const apiRoles = response.roles.map(r => ({
+          ...r,
+          users: r.users_count || 0
+        }));
+>>>>>>> import/master
 
         // Merge with static roles from constants
         const staticRoles = Object.values(USER_ROLES).map((roleName, index) => ({
           id: `static-${roleName}`,
           name: roleName,
+<<<<<<< HEAD
           color: getRoleColor(roleName),
+=======
+          color: index % 2 === 0 ? 'bg-primary' : 'bg-orange-500',
+>>>>>>> import/master
           users: 0,
           isStatic: true
         }));
@@ -117,7 +146,10 @@ const RolesPermissionsPage = () => {
         );
 
         const combinedRoles = [...apiRoles, ...filteredStatic];
+<<<<<<< HEAD
         console.log("Final combined roles:", combinedRoles); // Debug log
+=======
+>>>>>>> import/master
         setRoles(combinedRoles);
 
         // Default to first role if none selected
@@ -160,7 +192,11 @@ const RolesPermissionsPage = () => {
 
   const fetchPermissions = async () => {
     try {
+<<<<<<< HEAD
       const response = await api.get('v1/roles-permissions/permissions', {
+=======
+      const response = await api.get('api/v1/roles-permissions/permissions', {
+>>>>>>> import/master
         params: {
           role_id: selectedRole,
           user_ids: selectedUsers.map(u => u.id)
@@ -200,6 +236,7 @@ const RolesPermissionsPage = () => {
   const selectedRoleName = displayRoles.find(r => r.id == selectedRole)?.name;
 
   const handleTogglePermission = (module, action) => {
+<<<<<<< HEAD
     setPermissions(prev => {
       const isEnabling = !prev[module]?.[action];
       const newModulePerms = {
@@ -224,6 +261,15 @@ const RolesPermissionsPage = () => {
         [module]: newModulePerms
       };
     });
+=======
+    setPermissions(prev => ({
+      ...prev,
+      [module]: {
+        ...prev[module],
+        [action]: !prev[module]?.[action]
+      }
+    }));
+>>>>>>> import/master
   };
 
   const handleToggleModule = (module, ACTIONS) => {
@@ -245,6 +291,7 @@ const RolesPermissionsPage = () => {
     setPermissions(prev => {
       const newPerms = { ...prev };
       const allChecked = MODULES.every(module => prev[module]?.[action]);
+<<<<<<< HEAD
       const willEnable = !allChecked;
 
       MODULES.forEach(module => {
@@ -264,12 +311,20 @@ const RolesPermissionsPage = () => {
             newPerms[module][k] = false;
           });
         }
+=======
+      MODULES.forEach(module => {
+        newPerms[module] = {
+          ...(newPerms[module] || {}),
+          [action]: !allChecked
+        };
+>>>>>>> import/master
       });
       return newPerms;
     });
   };
 
 
+<<<<<<< HEAD
   const handleAddRole = async (roleName) => {
     try {
       const response = await api.post('v1/roles-permissions/roles', {
@@ -278,6 +333,34 @@ const RolesPermissionsPage = () => {
       });
       if (response.success) {
         setIsDrawerOpen(false);
+=======
+  const handleAddRole = async () => {
+    if (newRoleName.trim() === '') return;
+    try {
+      // Generate a beautiful, unique dot background color for Access Management
+      const backendColors = [
+        'bg-purple-500',
+        'bg-orange-500',
+        'bg-teal-500',
+        'bg-cyan-500',
+        'bg-pink-500',
+        'bg-fuchsia-500',
+        'bg-violet-500',
+      ];
+      let hash = 0;
+      const normalized = newRoleName.trim().toLowerCase();
+      for (let i = 0; i < normalized.length; i++) {
+        hash = normalized.charCodeAt(i) + ((hash << 5) - hash);
+      }
+      const backendColor = backendColors[Math.abs(hash) % backendColors.length];
+
+      const response = await api.post('api/v1/roles-permissions/roles', {
+        name: newRoleName,
+        color: backendColor
+      });
+      if (response.success) {
+        setIsModalOpen(false);
+>>>>>>> import/master
         setNewRoleName('');
         await fetchRoles(); // Refresh roles list
         setSelectedRole(response.role.id);
@@ -288,6 +371,7 @@ const RolesPermissionsPage = () => {
     }
   };
 
+<<<<<<< HEAD
   const handleUpdateRole = async (roleName) => {
     if (!editingRole) return;
     try {
@@ -297,6 +381,16 @@ const RolesPermissionsPage = () => {
       if (response.success) {
         setEditingRole(null);
         setIsDrawerOpen(false);
+=======
+  const handleUpdateRole = async () => {
+    if (!editingRole || newRoleName.trim() === '') return;
+    try {
+      const response = await api.put(`api/v1/roles-permissions/roles/${editingRole.id}`, {
+        name: newRoleName,
+      });
+      if (response.success) {
+        setEditingRole(null);
+>>>>>>> import/master
         setNewRoleName('');
         await fetchRoles();
       }
@@ -306,6 +400,7 @@ const RolesPermissionsPage = () => {
     }
   };
 
+<<<<<<< HEAD
   const handleDeleteRole = (role) => {
     setRoleToDelete(role);
     setIsDeleteModalOpen(true);
@@ -320,6 +415,15 @@ const RolesPermissionsPage = () => {
         await fetchRoles();
         setIsDeleteModalOpen(false);
         setRoleToDelete(null);
+=======
+  const handleDeleteRole = async (roleId) => {
+    if (!window.confirm("Êtes-vous sûr de vouloir supprimer ce rôle ?")) return;
+    try {
+      const response = await api.delete(`api/v1/roles-permissions/roles/${roleId}`);
+      if (response.success) {
+        if (selectedRole === roleId) setSelectedRole(null);
+        await fetchRoles();
+>>>>>>> import/master
       }
     } catch (error) {
       console.error("Error deleting role:", error);
@@ -333,7 +437,11 @@ const RolesPermissionsPage = () => {
       const role = roles.find(r => r.id === roleId);
       if (!role) return;
 
+<<<<<<< HEAD
       const response = await api.put(`v1/users/${userId}`, {
+=======
+      const response = await api.put(`api/v1/users/${userId}`, {
+>>>>>>> import/master
         role: role.name.toLowerCase()
       });
 
@@ -351,7 +459,11 @@ const RolesPermissionsPage = () => {
   const handleSavePermissions = async () => {
     setLoading(true);
     try {
+<<<<<<< HEAD
       const response = await api.post('v1/roles-permissions/permissions/sync', {
+=======
+      const response = await api.post('api/v1/roles-permissions/permissions/sync', {
+>>>>>>> import/master
         role_id: selectedRole,
         user_ids: selectedUsers.map(u => u.id),
         permissions: permissions
@@ -434,6 +546,7 @@ const RolesPermissionsPage = () => {
                 }}
                 onAddRole={() => {
                   setEditingRole(null);
+<<<<<<< HEAD
                   setIsDrawerOpen(true);
                 }}
                 onEditRole={(role) => {
@@ -444,6 +557,17 @@ const RolesPermissionsPage = () => {
                 canAdd={hasPermission('Autorisation', 'Création')}
                 canEdit={hasPermission('Autorisation', 'Modification')}
                 canDelete={hasPermission('Autorisation', 'Suppression')}
+=======
+                  setNewRoleName('');
+                  setIsModalOpen(true);
+                }}
+                onEditRole={(role) => {
+                  setEditingRole(role);
+                  setNewRoleName(role.name);
+                  setIsModalOpen(true);
+                }}
+                onDeleteRole={handleDeleteRole}
+>>>>>>> import/master
               />
 
 
@@ -568,6 +692,7 @@ const RolesPermissionsPage = () => {
         </div>
       </div>
 
+<<<<<<< HEAD
       {/* Role Drawer */}
       <RoleDrawer
         isOpen={isDrawerOpen}
@@ -589,6 +714,60 @@ const RolesPermissionsPage = () => {
         confirmText="Supprimer"
         type="danger"
       />
+=======
+      {/* Add Role Modal */}
+      {isModalOpen && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white w-full max-w-md border border-gray-200 flex flex-col">
+            <div className="flex justify-between items-center p-5 border-b border-gray-100 bg-gray-50">
+              <h3 className="font-bold text-lg text-text-dark">
+                {editingRole ? 'Modifier le rôle' : 'Ajouter un nouveau rôle'}
+              </h3>
+              <button
+                onClick={() => {
+                  setIsModalOpen(false);
+                  setEditingRole(null);
+                }}
+                className="text-gray-400 hover:text-red-500"
+              >
+                <X size={20} />
+              </button>
+            </div>
+            <div className="p-6">
+              <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">Nom du rôle</label>
+              <input
+                type="text"
+                value={newRoleName}
+                onChange={(e) => setNewRoleName(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && (editingRole ? handleUpdateRole() : handleAddRole())}
+                placeholder="Ex: Responsable RH"
+                autoFocus
+                className="w-full border-2 border-gray-200 p-3 outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all"
+              />
+            </div>
+            <div className="p-5 border-t border-gray-100 flex justify-end gap-3 bg-gray-50/50">
+              <button
+                onClick={() => {
+                  setIsModalOpen(false);
+                  setEditingRole(null);
+                }}
+                className="px-5 py-2.5 bg-white border border-gray-300 text-gray-600 font-bold text-sm uppercase hover:bg-gray-50"
+              >
+                Annuler
+              </button>
+              <button
+                onClick={editingRole ? handleUpdateRole : handleAddRole}
+                disabled={!newRoleName.trim()}
+                className="px-5 py-2.5 bg-primary text-white font-bold text-sm uppercase hover:bg-primary/90 disabled:opacity-50"
+              >
+                {editingRole ? 'Enregistrer' : 'Créer'}
+              </button>
+            </div>
+
+          </div>
+        </div>
+      )}
+>>>>>>> import/master
     </>
   );
 };

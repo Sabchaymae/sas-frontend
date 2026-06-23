@@ -1,6 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { clsx } from 'clsx';
 import { Search, UserPlus, ChevronDown, Check, Shield } from 'lucide-react';
+<<<<<<< HEAD
+=======
+import { getRoleStyle, getRoleDotColor } from '../../../constants/users';
+>>>>>>> import/master
 
 const UserList = ({ users, selectedUserIds, onToggleUser, searchQuery, setSearchQuery, roles, onAssignRole }) => {
   return (
@@ -148,7 +152,11 @@ const UserRow = ({ user, isSelected, onToggle, roles, onAssignRole }) => {
             className={clsx(
               "inline-flex items-center gap-2 px-3 py-1.5 transition-all text-[10px] font-bold uppercase border",
               currentRole 
+<<<<<<< HEAD
                 ? "bg-white border-primary text-primary hover:bg-primary/5" 
+=======
+                ? `${getRoleStyle(currentRole.name)} hover:opacity-90` 
+>>>>>>> import/master
                 : "bg-primary border-primary text-white hover:bg-primary/90"
             )}
           >
@@ -184,7 +192,11 @@ const UserRow = ({ user, isSelected, onToggle, roles, onAssignRole }) => {
                       user.roleId === role.id && "bg-primary/5 text-primary"
                     )}
                   >
+<<<<<<< HEAD
                     <div className={clsx("w-2 h-2 shrink-0", role.color || "bg-gray-500")} />
+=======
+                    <div className={clsx("w-2 h-2 shrink-0 rounded-full", getRoleDotColor(role.name))} />
+>>>>>>> import/master
                     <span className="text-sm font-medium truncate">
                       {role.name}
                     </span>

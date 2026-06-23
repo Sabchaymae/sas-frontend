@@ -45,13 +45,14 @@ const LoginForm = () => {
       <form onSubmit={handleSubmit(onSubmit)} className="login-form-fields" noValidate>
         <Input
           id="login-email"
-          label="Email ou Identifiant"
-          type="text"
+
+          label="Adresse email"
+          type="email"
           icon={Mail}
-          placeholder="votre@email.com ou USR001"
+          placeholder="votre@email.com"
           required
           error={errors.email?.message}
-          autoComplete="username"
+          autoComplete="email"
           {...register('email')}
         />
 
@@ -97,7 +98,7 @@ const LoginForm = () => {
 
       <div className="login-register-link">
         <span>Pas encore de compte ?</span>
-        <a href="/register">Demander l'accès</a>
+        <a href="/register">Demander l&apos;accès</a>
       </div>
     </div>
   );

@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 import React, { useState, useMemo, useEffect } from 'react';
+=======
+import React, { useState } from 'react';
+>>>>>>> import/master
 import { motion, AnimatePresence } from 'framer-motion';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
@@ -24,7 +28,10 @@ import {
   ChevronDown
 } from 'lucide-react';
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
+<<<<<<< HEAD
 import attendanceService from '../../services/attendanceService';
+=======
+>>>>>>> import/master
 
 
 // --- Sub-components ---
@@ -54,7 +61,11 @@ const StatsCard = ({ icon: Icon, title, value, badge, badgeColor, borderColor, d
 
 // Removed old FilterBar component as it's now integrated into the main page flow
 
+<<<<<<< HEAD
 const AttendanceRow = ({ data, index, onEdit, onView }) => {
+=======
+const AttendanceRow = ({ data, index, onEdit }) => {
+>>>>>>> import/master
   const isLate = data.status === 'Retard';
   const isAbsent = data.status === 'Absent';
   
@@ -102,10 +113,14 @@ const AttendanceRow = ({ data, index, onEdit, onView }) => {
       </td>
       <td className="px-6 py-4">
         <div className="flex items-center gap-2">
+<<<<<<< HEAD
           <button 
             onClick={() => onView(data)}
             className="p-2 hover:bg-white hover:shadow-sm rounded-lg text-gray-400 hover:text-[#1428C9] transition-all"
           >
+=======
+          <button className="p-2 hover:bg-white hover:shadow-sm rounded-lg text-gray-400 hover:text-[#1428C9] transition-all">
+>>>>>>> import/master
             <Eye size={18} />
           </button>
           <button 
@@ -120,6 +135,7 @@ const AttendanceRow = ({ data, index, onEdit, onView }) => {
   );
 };
 
+<<<<<<< HEAD
 const DetailsModal = ({ isOpen, onClose, data }) => {
   if (!data) return null;
 
@@ -221,6 +237,8 @@ const DetailsModal = ({ isOpen, onClose, data }) => {
   );
 };
 
+=======
+>>>>>>> import/master
 const EditModal = ({ isOpen, onClose, data }) => {
   if (!data) return null;
 
@@ -329,6 +347,7 @@ const EditModal = ({ isOpen, onClose, data }) => {
 const WorkTimeManagement = () => {
   const [activePeriod, setActivePeriod] = useState('Aujourd’hui');
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+<<<<<<< HEAD
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   const [selectedAttendance, setSelectedAttendance] = useState(null);
   const [showFilters, setShowFilters] = useState(false);
@@ -396,11 +415,20 @@ const WorkTimeManagement = () => {
     fetchData();
   }, []);
 
+=======
+  const [selectedAttendance, setSelectedAttendance] = useState(null);
+  const [showFilters, setShowFilters] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+
+  const periods = ['Aujourd’hui', 'Cette semaine', 'Ce mois', 'Personnalisé'];
+
+>>>>>>> import/master
   const handleEdit = (data) => {
     setSelectedAttendance(data);
     setIsEditModalOpen(true);
   };
 
+<<<<<<< HEAD
   const handleView = (data) => {
     setSelectedAttendance(data);
     setIsDetailsModalOpen(true);
@@ -481,6 +509,70 @@ const WorkTimeManagement = () => {
       return true;
     });
   }, [searchTerm, activePeriod, attendances]);
+=======
+  const mockData = [
+    {
+      name: "Amélie Martin",
+      role: "Réception",
+      date: "24/05/2024",
+      arrival: "08:02",
+      departure: "17:15",
+      total: "8h 13m",
+      status: "Présent",
+      anomaly: null
+    },
+    {
+      name: "Jean Dupont",
+      role: "Maintenance",
+      date: "24/05/2024",
+      arrival: "09:45",
+      departure: "18:00",
+      total: "7h 15m",
+      status: "Retard",
+      anomaly: "RETARD +45M"
+    },
+    {
+      name: "Marc Lemoine",
+      role: "Cuisine",
+      date: "24/05/2024",
+      arrival: "08:00",
+      departure: "--:--",
+      total: "--",
+      status: "Incomplet",
+      anomaly: null
+    },
+    {
+      name: "Sophie Bernard",
+      role: "Réception",
+      date: "24/05/2024",
+      arrival: "--:--",
+      departure: "--:--",
+      total: "0h",
+      status: "Absent",
+      anomaly: "NON JUSTIFIÉ"
+    },
+    {
+      name: "Thomas Dubois",
+      role: "Maintenance",
+      date: "23/05/2024",
+      arrival: "08:30",
+      departure: "17:30",
+      total: "9h",
+      status: "Présent",
+      anomaly: null
+    },
+    {
+      name: "Julie Lefebvre",
+      role: "Cuisine",
+      date: "23/05/2024",
+      arrival: "07:55",
+      departure: "16:00",
+      total: "8h 05m",
+      status: "Présent",
+      anomaly: null
+    }
+  ];
+>>>>>>> import/master
 
   // --- Export Logic ---
   const exportPDF = () => {
@@ -493,7 +585,11 @@ const WorkTimeManagement = () => {
     autoTable(doc, {
       startY: 40,
       head: [['Employé', 'Rôle', 'Date', 'Arrivée', 'Départ', 'Total', 'Statut']],
+<<<<<<< HEAD
       body: filteredData.map(row => [
+=======
+      body: mockData.map(row => [
+>>>>>>> import/master
         row.name, row.role, row.date, row.arrival, row.departure, row.total, row.status
       ]),
       headStyles: { fillColor: [20, 40, 201] },
@@ -504,7 +600,11 @@ const WorkTimeManagement = () => {
 
   const exportCSV = (format = 'csv') => {
     const headers = ['Employé', 'Rôle', 'Date', 'Arrivée', 'Départ', 'Total', 'Statut', 'Anomalie'];
+<<<<<<< HEAD
     const rows = filteredData.map(r => [
+=======
+    const rows = mockData.map(r => [
+>>>>>>> import/master
       r.name, r.role, r.date, r.arrival, r.departure, r.total, r.status, r.anomaly || ''
     ]);
 
@@ -565,11 +665,14 @@ const WorkTimeManagement = () => {
         onClose={() => setIsEditModalOpen(false)} 
         data={selectedAttendance} 
       />
+<<<<<<< HEAD
       <DetailsModal
         isOpen={isDetailsModalOpen}
         onClose={() => setIsDetailsModalOpen(false)}
         data={selectedAttendance}
       />
+=======
+>>>>>>> import/master
       
       {/* Header Section */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
@@ -621,7 +724,11 @@ const WorkTimeManagement = () => {
         <StatsCard 
           icon={Users}
           title="PRÉSENTS AUJOURD'HUI"
+<<<<<<< HEAD
           value={stats.present}
+=======
+          value="42 / 45"
+>>>>>>> import/master
           badge="STABLE"
           badgeColor="bg-green-100 text-green-600"
           borderColor="border-green-500"
@@ -630,7 +737,11 @@ const WorkTimeManagement = () => {
         <StatsCard 
           icon={UserMinus}
           title="ABSENTS"
+<<<<<<< HEAD
           value={stats.absent}
+=======
+          value="3"
+>>>>>>> import/master
           badge="+2 VS HIER"
           badgeColor="bg-red-100 text-red-600"
           borderColor="border-red-500"
@@ -639,7 +750,11 @@ const WorkTimeManagement = () => {
         <StatsCard 
           icon={AlertTriangle}
           title="RETARDS DÉTECTÉS"
+<<<<<<< HEAD
           value={stats.late}
+=======
+          value="12"
+>>>>>>> import/master
           badge="ALERTE"
           badgeColor="bg-orange-100 text-orange-600"
           borderColor="border-orange-500"
@@ -648,7 +763,11 @@ const WorkTimeManagement = () => {
         <StatsCard 
           icon={Clock}
           title="HEURES SUPPLÉMENTAIRES"
+<<<<<<< HEAD
           value={stats.overtime}
+=======
+          value="84h estim."
+>>>>>>> import/master
           badge="PÉRIODE"
           badgeColor="bg-blue-100 text-blue-600"
           borderColor="border-blue-500"
@@ -768,6 +887,7 @@ const WorkTimeManagement = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
+<<<<<<< HEAD
               {filteredData.map((row, idx) => (
                 <AttendanceRow 
                   key={idx} 
@@ -776,6 +896,10 @@ const WorkTimeManagement = () => {
                   onEdit={handleEdit} 
                   onView={handleView}
                 />
+=======
+              {mockData.map((row, idx) => (
+                <AttendanceRow key={idx} data={row} index={idx} onEdit={handleEdit} />
+>>>>>>> import/master
               ))}
             </tbody>
           </table>
@@ -783,6 +907,7 @@ const WorkTimeManagement = () => {
 
         {/* List Info Summary (Replaces Pagination) */}
         <div className="px-6 py-6 border-t border-gray-50 flex items-center justify-between bg-gray-50/30">
+<<<<<<< HEAD
           {loading ? (
             <p className="text-sm text-gray-500 font-medium">Chargement des données...</p>
           ) : (
@@ -792,6 +917,13 @@ const WorkTimeManagement = () => {
           )}
           <div className="text-[10px] font-black uppercase tracking-widest text-blue-600 bg-blue-50 px-3 py-1 rounded-full border border-blue-100">
             {searchTerm ? 'Résultats de recherche' : 'Liste complète'}
+=======
+          <p className="text-sm text-gray-500 font-medium">
+            Affichage de <span className="text-[#111827] font-black">{mockData.length}</span> résultats au total
+          </p>
+          <div className="text-[10px] font-black uppercase tracking-widest text-blue-600 bg-blue-50 px-3 py-1 rounded-full border border-blue-100">
+            Liste complète
+>>>>>>> import/master
           </div>
         </div>
       </div>

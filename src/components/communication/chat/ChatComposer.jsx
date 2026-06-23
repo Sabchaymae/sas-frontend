@@ -1,5 +1,6 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { Send, Paperclip, Smile, X, FileText, Image as ImageIcon } from 'lucide-react';
+
+import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { Send, Paperclip, Smile, X, FileText, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import EmojiPicker from 'emoji-picker-react';
 import clsx from 'clsx';
@@ -9,6 +10,7 @@ const ChatComposer = ({ onSend, onTyping, autoFocus = false }) => {
   const [isTyping, setIsTyping] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [attachments, setAttachments] = useState([]);
+  const [sending, setSending] = useState(false);
   const typingTimeoutRef = useRef(null);
   const textareaRef = useRef(null);
   const fileInputRef = useRef(null);
@@ -78,30 +80,43 @@ const ChatComposer = ({ onSend, onTyping, autoFocus = false }) => {
     });
   };
 
-  const handleSubmit = (e) => {
+
+  const handleSubmit = async (e) => {
     e?.preventDefault();
-    if (!content.trim() && attachments.length === 0) return;
+    if ((!content.trim() && attachments.length === 0) || sending) return;
 
-    if (attachments.length > 0) {
-      const formData = new FormData();
-      if (content.trim()) formData.append('content', content);
-      attachments.forEach(attr => {
-        formData.append('files[]', attr.file, attr.name); // Explicitly add filename
-      });
-      onSend(formData);
-    } else {
-      onSend(content);
+    setSending(true);
+    try {
+      if (attachments.length > 0) {
+        const formData = new FormData();
+        if (content.trim()) formData.append('content', content);
+        attachments.forEach(attr => formData.append('files[]', attr.file, attr.name));
+        await onSend(formData);
+      } else {
+        await onSend(content);
+      }
+      setContent('');
+      setAttachments([]);
+      setIsTyping(false);
+      onTyping(false);
+      setShowEmojiPicker(false);
+    } finally {
+      setSending(false);
+      textareaRef.current?.focus();
     }
-
-    setContent('');
-    setAttachments([]);
-    setIsTyping(false);
-    onTyping(false);
-    setShowEmojiPicker(false);
   };
 
   return (
-    <div className="bg-[#f0f2f5] px-3 py-2.5 relative">
+    <div
+      className="px-3 py-2.5 relative"
+      style={{
+        background: 'rgba(255,255,255,0.55)',
+        backdropFilter: 'blur(20px)',
+        WebkitBackdropFilter: 'blur(20px)',
+        borderTop: '1px solid rgba(255,255,255,0.7)',
+      }}
+    >
+
       {/* Attachment Previews */}
       <AnimatePresence>
         {attachments.length > 0 && (
@@ -109,7 +124,15 @@ const ChatComposer = ({ onSend, onTyping, autoFocus = false }) => {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 10 }}
-            className="flex flex-wrap gap-2 mb-2 p-2 bg-white rounded-lg shadow-sm border border-gray-100"
+
+            className="flex flex-wrap gap-2 mb-2 p-2 rounded-2xl"
+            style={{
+              background: 'rgba(255,255,255,0.7)',
+              backdropFilter: 'blur(12px)',
+              border: '1px solid rgba(255,255,255,0.8)',
+              boxShadow: '0 2px 12px rgba(20,40,201,0.08)',
+            }}
+
           >
             {attachments.map((attr) => (
               <div key={attr.id} className="relative group w-20 h-20 bg-gray-50 rounded-md border border-gray-100 overflow-hidden">
@@ -180,7 +203,16 @@ const ChatComposer = ({ onSend, onTyping, autoFocus = false }) => {
         </div>
 
         {/* Textarea Wrapper */}
-        <div className="flex-1 bg-white rounded-lg px-3 py-1.5 flex items-end">
+        <div
+          className="flex-1 rounded-2xl px-3 py-1.5 flex items-end"
+          style={{
+            background: 'rgba(255,255,255,0.7)',
+            backdropFilter: 'blur(12px)',
+            border: '1px solid rgba(255,255,255,0.85)',
+            boxShadow: '0 2px 8px rgba(20,40,201,0.06)',
+          }}
+        >
+
           <textarea
             ref={textareaRef}
             rows={1}
@@ -189,7 +221,8 @@ const ChatComposer = ({ onSend, onTyping, autoFocus = false }) => {
             value={content}
             onChange={handleContentChange}
             onKeyDown={(e) => {
-              if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSubmit(e); }
+
+              if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); if (!sending) handleSubmit(e); }
             }}
           />
         </div>
@@ -198,15 +231,42 @@ const ChatComposer = ({ onSend, onTyping, autoFocus = false }) => {
         <div className="pb-0.5">
           <button
             type="submit"
-            disabled={!content.trim() && attachments.length === 0}
-            className={clsx(
-              "w-12 h-12 rounded-full flex items-center justify-center transition-all shrink-0 shadow-sm",
-              (content.trim() || attachments.length > 0)
-                ? "bg-[#00a884] text-white hover:bg-[#008f72] active:scale-90"
-                : "text-[#54656f] cursor-not-allowed"
-            )}
+
+            disabled={(!content.trim() && attachments.length === 0) || sending}
+            className="w-12 h-12 rounded-full flex items-center justify-center transition-all shrink-0"
+            style={content.trim() || attachments.length > 0 ? {
+              background: sending
+                ? 'linear-gradient(135deg, rgba(20,40,201,0.6) 0%, rgba(79,110,247,0.6) 100%)'
+                : 'linear-gradient(135deg, #1428C9 0%, #4f6ef7 100%)',
+              boxShadow: sending ? 'none' : '0 4px 16px rgba(20,40,201,0.35)',
+            } : {
+              background: 'rgba(255,255,255,0.5)',
+              border: '1px solid rgba(255,255,255,0.7)',
+            }}
           >
-            <Send size={22} className={(content.trim() || attachments.length > 0) ? "ml-0.5" : ""} />
+            <AnimatePresence mode="wait">
+              {sending ? (
+                <motion.span key="sending"
+                  initial={{ scale: 0, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  exit={{ scale: 0, opacity: 0 }}
+                  transition={{ duration: 0.12 }}
+                >
+                  <Loader2 size={20} className="text-white animate-spin" />
+                </motion.span>
+              ) : (
+                <motion.span key="send"
+                  initial={{ scale: 0, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  exit={{ scale: 0, opacity: 0 }}
+                  transition={{ duration: 0.12 }}
+                >
+                  <Send size={20}
+                    className={(content.trim() || attachments.length > 0) ? 'text-white ml-0.5' : 'text-gray-300'}
+                  />
+                </motion.span>
+              )}
+            </AnimatePresence>
           </button>
         </div>
       </form>

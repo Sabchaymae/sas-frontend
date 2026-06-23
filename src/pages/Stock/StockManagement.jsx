@@ -1,17 +1,29 @@
+<<<<<<< HEAD
 import { useState, useMemo, useEffect, lazy, Suspense } from 'react';
+=======
+import { useState, useMemo } from 'react';
+>>>>>>> import/master
 import { motion } from 'framer-motion';
 import {
   Package,
   AlertTriangle,
+<<<<<<< HEAD
   Plus,
   Search,
   Coins,
   History,
+=======
+  Euro,
+  Plus,
+  Search,
+  SlidersHorizontal,
+>>>>>>> import/master
 } from 'lucide-react';
 
 import StatsCard from './components/StatsCard';
 import ProductTable from './components/ProductTable';
 import AddProductModal from './components/AddProductModal';
+<<<<<<< HEAD
 import ProductDetailModal from './components/ProductDetailModal';
 import StockMovementModal from './components/StockMovementModal';
 import StockHistory from './components/StockHistory';
@@ -29,10 +41,128 @@ const CATEGORIES = [
   'Consommables Bureau',
   'Infrastructure',
   'Outillage',
+=======
+
+// ─── Mock Data ─────────────────────────────────────────────────
+const INITIAL_PRODUCTS = [
+  {
+    id: 1,
+    designation: 'Draps Coton King Size',
+    sku: 'DR-KS-001',
+    categorie: 'Linge de lit',
+    fournisseur: 'Textiles & Co',
+    quantite: 8,
+    seuil: 20,
+    prixUnitaire: 35.00,
+  },
+  {
+    id: 2,
+    designation: 'Nettoyant Multi-surfaces',
+    sku: 'CH-MS-045',
+    categorie: 'Produits ménagers',
+    fournisseur: 'CleanPro',
+    quantite: 142,
+    seuil: 30,
+    prixUnitaire: 4.50,
+  },
+  {
+    id: 3,
+    designation: 'Serviettes Bain 50×100',
+    sku: 'DR-SB-002',
+    categorie: 'Salle de bain',
+    fournisseur: 'FreshLinen',
+    quantite: 85,
+    seuil: 25,
+    prixUnitaire: 12.00,
+  },
+  {
+    id: 4,
+    designation: 'Savon Liquide 500ml',
+    sku: 'SB-SL-010',
+    categorie: 'Salle de bain',
+    fournisseur: 'CleanPro',
+    quantite: 5,
+    seuil: 50,
+    prixUnitaire: 3.20,
+  },
+  {
+    id: 5,
+    designation: 'Oreillers Plume Standard',
+    sku: 'LB-OP-008',
+    categorie: 'Linge de lit',
+    fournisseur: 'FreshLinen',
+    quantite: 200,
+    seuil: 40,
+    prixUnitaire: 22.00,
+  },
+  {
+    id: 6,
+    designation: 'Détergent Lessive 5L',
+    sku: 'PM-DL-015',
+    categorie: 'Produits ménagers',
+    fournisseur: 'CleanPro',
+    quantite: 18,
+    seuil: 20,
+    prixUnitaire: 15.50,
+  },
+  {
+    id: 7,
+    designation: 'Housse Couette Double',
+    sku: 'LB-HC-003',
+    categorie: 'Linge de lit',
+    fournisseur: 'Textiles & Co',
+    quantite: 3,
+    seuil: 15,
+    prixUnitaire: 45.00,
+  },
+  {
+    id: 8,
+    designation: 'Shampooing Dosettes',
+    sku: 'SB-SD-022',
+    categorie: 'Salle de bain',
+    fournisseur: 'HôtelSupply',
+    quantite: 1250,
+    seuil: 200,
+    prixUnitaire: 0.35,
+  },
+  {
+    id: 9,
+    designation: 'Papier Toilette Premium',
+    sku: 'SB-PT-030',
+    categorie: 'Consommables',
+    fournisseur: 'HôtelSupply',
+    quantite: 15,
+    seuil: 100,
+    prixUnitaire: 0.80,
+  },
+  {
+    id: 10,
+    designation: 'Plateau Petit-déjeuner',
+    sku: 'CU-PP-005',
+    categorie: 'Cuisine',
+    fournisseur: 'ProEquip',
+    quantite: 60,
+    seuil: 10,
+    prixUnitaire: 18.00,
+  },
+];
+
+const CATEGORIES = [
+  'Toutes catégories',
+  'Linge de lit',
+  'Produits ménagers',
+  'Salle de bain',
+  'Cuisine',
+  'Consommables',
+  'Équipements chambre',
+  'Mobilier',
+  'Électronique',
+>>>>>>> import/master
 ];
 
 const FOURNISSEURS = [
   'Tous fournisseurs',
+<<<<<<< HEAD
   'IAM (Maroc Telecom)',
   'Inwi',
   'Orange Maroc',
@@ -40,10 +170,19 @@ const FOURNISSEURS = [
   'Nokia',
   'Ericsson',
   'Cisco',
+=======
+  'Textiles & Co',
+  'CleanPro',
+  'HôtelSupply',
+  'FreshLinen',
+  'ProEquip',
+  'AlgérieFournitures',
+>>>>>>> import/master
 ];
 
 // ─── Main Component ────────────────────────────────────────────
 const StockManagement = () => {
+<<<<<<< HEAD
   const [products, setProducts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -64,10 +203,15 @@ const StockManagement = () => {
     onConfirm: null
   });
   
+=======
+  const [products, setProducts] = useState(INITIAL_PRODUCTS);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+>>>>>>> import/master
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('Toutes catégories');
   const [supplierFilter, setSupplierFilter] = useState('Tous fournisseurs');
   const [alertFilter, setAlertFilter] = useState('all');
+<<<<<<< HEAD
   
   const { hasPermission } = usePermissions();
 
@@ -87,6 +231,8 @@ const StockManagement = () => {
   useEffect(() => {
     fetchProducts();
   }, []);
+=======
+>>>>>>> import/master
 
   // ─── Computed Stats ─────────────────────────────────────────
   const stats = useMemo(() => {
@@ -116,6 +262,7 @@ const StockManagement = () => {
   }, [products, searchQuery, categoryFilter, supplierFilter, alertFilter]);
 
   // ─── Handlers ───────────────────────────────────────────────
+<<<<<<< HEAD
   const handleAddOrEditProduct = async (form, id) => {
     try {
       const productData = {
@@ -225,6 +372,28 @@ const StockManagement = () => {
     return <StockHistory onBack={() => setShowHistory(false)} />;
   }
 
+=======
+  const handleAddProduct = (form) => {
+    const newProduct = {
+      id: Date.now(),
+      designation: form.designation,
+      sku: `NEW-${String(Date.now()).slice(-6)}`,
+      categorie: form.categorie,
+      fournisseur: form.fournisseur,
+      quantite: parseInt(form.quantite) || 0,
+      seuil: parseInt(form.seuil) || 20,
+      prixUnitaire: parseFloat(form.prixNormal) || 0,
+    };
+    setProducts(prev => [newProduct, ...prev]);
+  };
+
+  const handleDelete = (product) => {
+    if (window.confirm(`Supprimer "${product.designation}" ?`)) {
+      setProducts(prev => prev.filter(p => p.id !== product.id));
+    }
+  };
+
+>>>>>>> import/master
   return (
     <div className="w-full mx-auto pb-12 space-y-8">
       {/* ── Header ─────────────────────────────────────────────── */}
@@ -257,6 +426,7 @@ const StockManagement = () => {
               </span>
             </motion.div>
           )}
+<<<<<<< HEAD
           {hasPermission('Stock', 'Création') && (
             <motion.button
               initial={{ scale: 0.9, opacity: 0 }}
@@ -281,6 +451,18 @@ const StockManagement = () => {
               Ajouter un produit
             </motion.button>
           )}
+=======
+          <motion.button
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ delay: 0.4 }}
+            onClick={() => setIsModalOpen(true)}
+            className="flex items-center gap-2 px-6 py-3 bg-[#1428C9] text-white text-sm font-bold rounded-xl hover:bg-[#1428C9]/90 hover:shadow-lg hover:shadow-[#1428C9]/20 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200"
+          >
+            <Plus size={18} />
+            Ajouter un produit
+          </motion.button>
+>>>>>>> import/master
         </div>
       </motion.div>
 
@@ -308,10 +490,17 @@ const StockManagement = () => {
         />
         <StatsCard
           title="VALEUR TOTALE"
+<<<<<<< HEAD
           value={`${stats.totalValue.toLocaleString('fr-FR', { minimumFractionDigits: 2 })} DH`}
           subtitle="Basé sur le prix unitaire actuel"
           subtitleColor="text-gray-400"
           icon={Coins}
+=======
+          value={`${stats.totalValue.toLocaleString('fr-FR', { minimumFractionDigits: 2 })} €`}
+          subtitle="Basé sur le prix unitaire actuel"
+          subtitleColor="text-gray-400"
+          icon={Euro}
+>>>>>>> import/master
           iconBg="bg-amber-50"
           iconColor="text-amber-500"
           index={2}
@@ -399,6 +588,7 @@ const StockManagement = () => {
       {/* ── Products Table ─────────────────────────────────────── */}
       <ProductTable
         products={filteredProducts}
+<<<<<<< HEAD
         onView={handleViewClick}
         onEdit={handleEditClick}
         onDelete={handleDelete}
@@ -467,6 +657,19 @@ const StockManagement = () => {
           />
         )}
       </Suspense>
+=======
+        onView={(p) => console.log('View:', p)}
+        onEdit={(p) => console.log('Edit:', p)}
+        onDelete={handleDelete}
+      />
+
+      {/* ── Add Product Modal ──────────────────────────────────── */}
+      <AddProductModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSave={handleAddProduct}
+      />
+>>>>>>> import/master
     </div>
   );
 };

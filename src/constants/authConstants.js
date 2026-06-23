@@ -78,7 +78,12 @@ export const LOGIN_TABS = [
   },
 ];
 
+<<<<<<< HEAD
 // API endpoints (to be updated when backend is ready)
+=======
+// API endpoints — paths are relative to the identity service base URL
+// baseURL is already http://localhost:8080/api/identity/, so paths start at v1/
+>>>>>>> import/master
 export const AUTH_ENDPOINTS = {
   LOGIN: 'v1/auth/login',
   REGISTER: 'v1/auth/register',
