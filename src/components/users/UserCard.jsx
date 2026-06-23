@@ -20,7 +20,7 @@ const UserCard = memo(({ user, onEdit, onView, onDelete, canView = true, canEdit
           )}
           <div className={cn(
             "absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-white",
-            user.statut === 'Actif' ? "bg-green-500" : "bg-gray-300"
+            user.isOnline ? "bg-green-500" : "bg-gray-300"
           )} />
         </div>
         <div className="flex-1 min-w-0">

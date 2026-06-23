@@ -320,7 +320,6 @@ const authSlice = createSlice({
         state.user = action.payload.user || action.payload.data || action.payload;
       })
       .addCase(fetchCurrentUser.rejected, (state) => {
-        // If fetch user fails, we might want to clear auth state
         state.isAuthenticated = false;
         state.token = null;
         localStorage.removeItem('auth_token');

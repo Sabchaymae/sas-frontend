@@ -1,34 +1,38 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { Outlet } from 'react-router-dom';
 import Header from './Header';
 import Sidebar from './Sidebar';
+import useCommunicationWebSocket from '../../hooks/useCommunicationWebSocket';
 
 const DashboardLayout = () => {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
+  
+  // Initialize WebSocket connections (including presence channel for online status)
+  useCommunicationWebSocket();
 
-  const toggleSidebar = useCallback(() => {
-    setIsSidebarOpen(prev => !prev);
+  const toggleMobileSidebar = useCallback(() => {
+    setIsMobileOpen(prev => !prev);
   }, []);
 
-  const closeSidebar = useCallback(() => {
-    setIsSidebarOpen(false);
+  const closeMobileSidebar = useCallback(() => {
+    setIsMobileOpen(false);
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#F9FAFB] flex">
-      {/* Sidebar Component (Mobile & Desktop) */}
-      <Sidebar isOpen={isSidebarOpen} onClose={closeSidebar} />
+    <div className="min-h-screen bg-gradient-to-br from-[#F8FAFF] to-[#F9FAFB] flex">
+      {/* Sidebar Component */}
+      <Sidebar isMobileOpen={isMobileOpen} onMobileClose={closeMobileSidebar} />
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col min-h-screen overflow-x-hidden transition-all duration-300">
-        <Header onMenuClick={toggleSidebar} />
-        <main className="flex-1 p-4 md:p-6 lg:p-8 w-full">
-          <div className="max-w-[1600px] mx-auto">
+      <div className="flex-1 flex flex-col min-h-screen overflow-x-hidden lg:ml-[80px] transition-all duration-300"
+           id="main-content-area">
+        <Header onMenuClick={toggleMobileSidebar} />
+        <main className="flex-1 p-6 lg:p-8">
+          <div className="max-w-[1800px] mx-auto">
             <Outlet />
           </div>
         </main>
       </div>
-
     </div>
   );
 };

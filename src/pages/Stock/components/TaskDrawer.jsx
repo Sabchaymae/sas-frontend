@@ -192,6 +192,27 @@ const TaskDrawer = ({ isOpen, onClose, onSave, initialData, defaultIncident = fa
               animate={{ opacity: 1, y: 0 }}
               className="space-y-6 p-6 bg-red-50/30 rounded-3xl border border-red-100/50"
             >
+              {initialData && (
+                <div className="space-y-2">
+                  <label className="text-[10px] font-bold text-[#111827] uppercase tracking-widest ml-1">Statut</label>
+                  <div className="relative">
+                    <Flag size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300" />
+                    <select
+                      name="status"
+                      value={formData.status}
+                      onChange={handleChange}
+                      className="w-full pl-12 pr-4 py-3 bg-white border-2 border-red-50 rounded-xl text-sm font-medium focus:border-red-500 outline-none transition-all appearance-none"
+                    >
+                      <option value="OPEN">Ouvert</option>
+                      <option value="IN_PROGRESS">En cours</option>
+                      <option value="RESOLVED">Résolu</option>
+                      <option value="CLOSED">Fermé</option>
+                    </select>
+                    <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+                  </div>
+                </div>
+              )}
+
               <div className="flex items-center gap-2 mb-2">
                 <Users size={16} className="text-red-500" />
                 <h3 className="text-xs font-black text-red-600 uppercase tracking-widest">Informations Client</h3>

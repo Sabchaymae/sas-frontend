@@ -21,7 +21,8 @@ import {
   Activity,
   X,
   Zap,
-  ShieldAlert
+  ShieldAlert,
+  ChevronDown
 } from 'lucide-react';
 import { stockService } from '@/services/stockService';
 import useAuth from '@/hooks/useAuth';
@@ -136,6 +137,24 @@ const IncidentReporting = () => {
       });
     } finally {
       setDeleteModal({ isOpen: false, incidentId: null });
+    }
+  };
+
+  const handleQuickStatusChange = async (incidentId, newStatus) => {
+    try {
+      const response = await stockService.updateIncident(incidentId, { status: newStatus });
+      setIncidents(prev => prev.map(inc => inc.id === incidentId ? (response.data || response) : inc));
+      setNotification({
+        type: 'success',
+        title: 'Mis à jour',
+        message: 'Statut de l\'incident mis à jour.'
+      });
+    } catch (error) {
+      setNotification({
+        type: 'error',
+        title: 'Erreur',
+        message: 'Erreur lors de la mise à jour du statut.'
+      });
     }
   };
 
@@ -273,15 +292,22 @@ const IncidentReporting = () => {
                       </span>
                     </td>
                     <td className="px-6 py-4">
-                      <div className={cn(
-                        "inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-widest",
-                        incident.status === 'OPEN' ? "bg-red-100 text-red-600" :
-                        incident.status === 'IN_PROGRESS' ? "bg-amber-100 text-amber-600" :
-                        "bg-emerald-100 text-emerald-600"
-                      )}>
-                        {incident.status === 'OPEN' ? 'Ouvert' : 
-                         incident.status === 'IN_PROGRESS' ? 'En cours' : 'Résolu'}
-                      </div>
+                      <select
+                        value={incident.status}
+                        onChange={(e) => handleQuickStatusChange(incident.id, e.target.value)}
+                        className={cn(
+                          "inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border-0 cursor-pointer focus:ring-2 focus:ring-offset-2 outline-none",
+                          incident.status === 'OPEN' ? "bg-red-100 text-red-600 focus:ring-red-500" :
+                          incident.status === 'IN_PROGRESS' ? "bg-amber-100 text-amber-600 focus:ring-amber-500" :
+                          incident.status === 'RESOLVED' ? "bg-emerald-100 text-emerald-600 focus:ring-emerald-500" :
+                          "bg-gray-100 text-gray-600 focus:ring-gray-500"
+                        )}
+                      >
+                        <option value="OPEN">Ouvert</option>
+                        <option value="IN_PROGRESS">En cours</option>
+                        <option value="RESOLVED">Résolu</option>
+                        <option value="CLOSED">Fermé</option>
+                      </select>
                       {incident.similar_incidents_count > 0 && (
                         <div className="mt-1 flex items-center gap-1 text-[9px] font-bold text-red-500 animate-pulse">
                           <AlertCircle size={10} />
@@ -377,17 +403,27 @@ const IncidentReporting = () => {
                 </div>
               </div>
 
-              <div className="pt-4 border-t border-gray-50 flex items-center justify-between">
+              <div className="pt-4 border-t border-gray-50 flex items-center justify-between gap-3">
                 <div className="flex items-center gap-2 text-[10px] font-black text-gray-400 uppercase tracking-widest">
                   <Clock size={12} />
                   {new Date(incident.incident_date).toLocaleDateString()}
                 </div>
-                <div className={cn(
-                  "w-8 h-8 rounded-full flex items-center justify-center",
-                  incident.status === 'COMPLETED' ? "bg-emerald-100 text-emerald-600" : "bg-amber-100 text-amber-600"
-                )}>
-                  <CheckCircle2 size={16} />
-                </div>
+                <select
+                  value={incident.status}
+                  onChange={(e) => handleQuickStatusChange(incident.id, e.target.value)}
+                  className={cn(
+                    "px-2 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border-0 cursor-pointer focus:ring-2 focus:ring-offset-2 outline-none",
+                    incident.status === 'OPEN' ? "bg-red-100 text-red-600 focus:ring-red-500" :
+                    incident.status === 'IN_PROGRESS' ? "bg-amber-100 text-amber-600 focus:ring-amber-500" :
+                    incident.status === 'RESOLVED' ? "bg-emerald-100 text-emerald-600 focus:ring-emerald-500" :
+                    "bg-gray-100 text-gray-600 focus:ring-gray-500"
+                  )}
+                >
+                  <option value="OPEN">Ouvert</option>
+                  <option value="IN_PROGRESS">En cours</option>
+                  <option value="RESOLVED">Résolu</option>
+                  <option value="CLOSED">Fermé</option>
+                </select>
               </div>
             </motion.div>
           ))}

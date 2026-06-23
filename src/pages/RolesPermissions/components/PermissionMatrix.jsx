@@ -4,7 +4,7 @@ import { Check } from 'lucide-react';
 
 const MODULES = [
   'Utilisateurs', 'Souscriptions', 'Stock', 'Comptabilité', 
-  'Tâches', 'Temps', 'Agences', 'Communication', 'Autorisation'
+  'Tâches', 'Incidents', 'Temps', 'Agences', 'Communication', 'Autorisation'
 ];
 
 const ACTIONS = [

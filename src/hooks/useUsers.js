@@ -24,7 +24,12 @@ export const useUsers = () => {
         search: search
       };
       const data = await userService.getUsers(apiFilters);
-      setUsers(data.data || data); 
+      // Add mock isOnline status for demonstration
+      const usersWithOnlineStatus = (data.data || data).map(user => ({
+        ...user,
+        isOnline: Math.random() > 0.3 // ~70% of users are online for demo
+      }));
+      setUsers(usersWithOnlineStatus); 
       setError(null);
     } catch (err) {
       setError('Erreur lors du chargement des utilisateurs');
@@ -52,8 +57,10 @@ export const useUsers = () => {
   const addUser = useCallback(async (userData) => {
     try {
       const newUser = await userService.createUser(userData);
-      setUsers(prev => [newUser, ...prev]);
-      return newUser;
+      // Add isOnline to new user
+      const userWithOnline = { ...newUser, isOnline: true };
+      setUsers(prev => [userWithOnline, ...prev]);
+      return userWithOnline;
     } catch (err) {
       setError('Erreur lors de l\'ajout de l\'utilisateur');
       throw err;
@@ -64,7 +71,7 @@ export const useUsers = () => {
     try {
       const updatedUser = await userService.updateUser(id, updatedData);
       setUsers(prev => prev.map(user => 
-        user.id === id ? updatedUser : user
+        user.id === id ? { ...updatedUser, isOnline: user.isOnline } : user
       ));
       return updatedUser;
     } catch (err) {

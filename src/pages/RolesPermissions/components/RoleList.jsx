@@ -64,7 +64,7 @@ const RoleList = ({ roles, selectedRoles, onToggleRole, onAddRole, onDoubleClick
 
               <div className="flex items-center justify-between w-full">
                 <div className={clsx(
-                  "w-10 h-10 flex items-center justify-center text-white transition-all duration-200 group-hover:scale-110",
+                  "w-10 h-10 rounded-xl flex items-center justify-center text-white transition-all duration-200 group-hover:scale-110 shadow-md",
                   role.color || "bg-gray-500"
                 )}>
                   <Shield size={18} />

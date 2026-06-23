@@ -10,6 +10,7 @@ import { ProtectedRoute } from '@/guards/ProtectedRoute'
 import Forbidden from '@/pages/Forbidden'
 
 import DashboardLayout from '@/components/layout/DashboardLayout'
+import DashboardPage from '@/pages/Dashboard/DashboardPage'
 import UsersPage from '@/pages/UsersPage'
 import UserHistoryPage from '@/pages/UserHistoryPage'
 
@@ -21,6 +22,7 @@ import IncidentReporting from '@/pages/Stock/components/IncidentReporting'
 import StockManagement from '@/pages/Stock/StockManagement'
 import ProductCatalogue from '@/pages/Stock/ProductCatalogue'
 import WorkTimeManagement from '@/pages/WorkTime/WorkTimeManagement'
+import CommunicationPage from '@/pages/Communication/CommunicationPage'
 
 // Lazy-loaded auth pages
 const LoginPage = lazy(() => import('@/pages/auth/LoginPage'))
@@ -85,16 +87,14 @@ function App() {
             <DashboardLayout />
           </AuthGuard>
         }>
-          <Route index element={<Navigate to="/dashboard/users" replace />} />
+          <Route index element={<DashboardPage />} />
           <Route path="users" element={
             <ProtectedRoute module="Utilisateurs" action="Lecture">
               <UsersPage />
             </ProtectedRoute>
           } />
           <Route path="historique" element={
-            <ProtectedRoute module="Communication" action="Lecture">
-              <UserHistoryPage />
-            </ProtectedRoute>
+            <UserHistoryPage />
           } />
           <Route path="subscriptions" element={
             <ProtectedRoute module="Souscriptions" action="Lecture">
@@ -102,12 +102,14 @@ function App() {
             </ProtectedRoute>
           } />
           <Route path="tasks" element={
-            <ProtectedRoute module="Stock" action="Lecture">
+            <ProtectedRoute module="Tâches" action="Lecture">
               <TaskManagement />
             </ProtectedRoute>
           } />
           <Route path="incidents" element={
-            <IncidentReporting />
+            <ProtectedRoute module="Incidents" action="Lecture">
+              <IncidentReporting />
+            </ProtectedRoute>
           } />
           <Route path="settings" element={<div className="p-8"><h1 className="text-2xl font-bold">Paramètres</h1></div>} />
           <Route path="roles-permissions" element={
@@ -128,6 +130,11 @@ function App() {
           <Route path="time" element={
             <ProtectedRoute module="Temps" action="Lecture">
               <WorkTimeManagement />
+            </ProtectedRoute>
+          } />
+          <Route path="communication" element={
+            <ProtectedRoute module="Communication" action="Lecture">
+              <CommunicationPage />
             </ProtectedRoute>
           } />
 

@@ -44,7 +44,7 @@ const usePermissions = () => {
     }
     try {
       setLoading(true);
-      const response = await api.get('api/v1/roles-permissions/my-permissions');
+      const response = await api.get('v1/roles-permissions/my-permissions');
       if (response.success && response.permissions) {
         setPermissions(response.permissions);
       }

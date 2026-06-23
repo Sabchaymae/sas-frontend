@@ -97,7 +97,7 @@ const LoginForm = () => {
 
       <div className="login-register-link">
         <span>Pas encore de compte ?</span>
-        <a href="/register">Demander l&apos;accès</a>
+        <a href="/register">Demander l'accès</a>
       </div>
     </div>
   );

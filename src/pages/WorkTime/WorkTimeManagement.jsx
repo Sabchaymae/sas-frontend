@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
@@ -24,6 +24,7 @@ import {
   ChevronDown
 } from 'lucide-react';
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
+import attendanceService from '../../services/attendanceService';
 
 
 // --- Sub-components ---
@@ -332,8 +333,68 @@ const WorkTimeManagement = () => {
   const [selectedAttendance, setSelectedAttendance] = useState(null);
   const [showFilters, setShowFilters] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const [attendances, setAttendances] = useState([]);
+  const [anomalies, setAnomalies] = useState([]);
+  const [employees, setEmployees] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const periods = ['Aujourd’hui', 'Cette semaine', 'Ce mois', 'Personnalisé'];
+
+  // Fetch data from API
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const [attendanceRes, anomaliesRes, employeesRes] = await Promise.all([
+          attendanceService.getAttendance(),
+          attendanceService.getAnomalies(),
+          attendanceService.getEmployees()
+        ]);
+        
+        // Traitement des employés
+        const employeesData = employeesRes.data?.data || employeesRes.data || employeesRes || [];
+        setEmployees(employeesData);
+        
+        // Transform API data to match our mock structure - notice data.data because it's paginated!
+        const data = attendanceRes.data?.data || attendanceRes.data || [];
+        const transformedAttendances = data.map(item => ({
+          id: item.id,
+          name: item.employee?.name || 'Employé inconnu',
+          role: item.employee?.department || 'Rôle inconnu',
+          date: new Date(item.date).toLocaleDateString('fr-FR'),
+          arrival: item.clock_in ? new Date(`2000-01-01T${item.clock_in}`).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) : '--:--',
+          departure: item.clock_out ? new Date(`2000-01-01T${item.clock_out}`).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) : '--:--',
+          total: item.total_hours || '--',
+          overtime_hours: parseFloat(item.overtime_hours) || 0,
+          status: item.status === 'Present' ? 'Présent' : item.status === 'Late' ? 'Retard' : item.status === 'Absent' ? 'Absent' : 'Incomplet',
+          anomaly: item.is_late ? 'Retard (>10h00)' : null,
+          logs: (item.logs || []).map(log => ({
+            type: log.type === 0 ? 'Entrée' : 'Sortie',
+            time: new Date(log.timestamp).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
+            device: `Borne ${log.device_id || 'Principale'}`
+          }))
+        }));
+        
+        // Add anomalies to transformed data
+        const anomaliesList = (anomaliesRes.data || anomaliesRes || []);
+        transformedAttendances.forEach(att => {
+          const foundAnomaly = anomaliesList.find(a => a.attendance_id === att.id);
+          if (foundAnomaly) {
+            att.anomaly = foundAnomaly.type === 'LATE' ? `RETARD +${foundAnomaly.description}` : foundAnomaly.type;
+          }
+        });
+        
+        setAttendances(transformedAttendances);
+        setAnomalies(anomaliesList);
+      } catch (error) {
+        console.error('Erreur lors du chargement des données:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchData();
+  }, []);
 
   const handleEdit = (data) => {
     setSelectedAttendance(data);
@@ -344,95 +405,43 @@ const WorkTimeManagement = () => {
     setSelectedAttendance(data);
     setIsDetailsModalOpen(true);
   };
-
-  const mockData = [
-    {
-      name: "Amélie Martin",
-      role: "Réception",
-      date: "14/05/2026",
-      arrival: "08:02",
-      departure: "17:15",
-      total: "8h 13m",
-      status: "Présent",
-      anomaly: null,
-      logs: [
-        { type: 'Entrée', time: '08:02', device: 'Borne Principale' },
-        { type: 'Début Pause', time: '12:30', device: 'Borne Principale' },
-        { type: 'Fin Pause', time: '13:30', device: 'Borne Principale' },
-        { type: 'Sortie', time: '17:15', device: 'Borne Principale' }
-      ]
-    },
-    {
-      name: "Jean Dupont",
-      role: "Maintenance",
-      date: "14/05/2026",
-      arrival: "09:45",
-      departure: "18:00",
-      total: "7h 15m",
-      status: "Retard",
-      anomaly: "RETARD +45M",
-      logs: [
-        { type: 'Entrée (Retard)', time: '09:45', device: 'Borne Principale' },
-        { type: 'Sortie', time: '18:00', device: 'Borne Principale' }
-      ]
-    },
-    {
-      name: "Marc Lemoine",
-      role: "Cuisine",
-      date: "14/05/2026",
-      arrival: "08:00",
-      departure: "--:--",
-      total: "--",
-      status: "Incomplet",
-      anomaly: null,
-      logs: [
-        { type: 'Entrée', time: '08:00', device: 'Borne Cuisine' }
-      ]
-    },
-    {
-      name: "Sophie Bernard",
-      role: "Réception",
-      date: "13/05/2026",
-      arrival: "--:--",
-      departure: "--:--",
-      total: "0h",
-      status: "Absent",
-      anomaly: "NON JUSTIFIÉ",
-      logs: []
-    },
-    {
-      name: "Thomas Dubois",
-      role: "Maintenance",
-      date: "12/05/2026",
-      arrival: "08:30",
-      departure: "17:30",
-      total: "9h",
-      status: "Présent",
-      anomaly: null,
-      logs: [
-        { type: 'Entrée', time: '08:30', device: 'Borne Principale' },
-        { type: 'Sortie', time: '17:30', device: 'Borne Principale' }
-      ]
-    },
-    {
-      name: "Julie Lefebvre",
-      role: "Cuisine",
-      date: "10/05/2026",
-      arrival: "07:55",
-      departure: "16:00",
-      total: "8h 05m",
-      status: "Présent",
-      anomaly: null,
-      logs: [
-        { type: 'Entrée', time: '07:55', device: 'Borne Cuisine' },
-        { type: 'Sortie', time: '16:00', device: 'Borne Cuisine' }
-      ]
-    }
-  ];
+  
+  // Calculate dynamic stats
+  const stats = useMemo(() => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    const todayAttendances = attendances.filter(att => {
+      const [d, m, y] = att.date.split('/').map(Number);
+      const attDate = new Date(y, m - 1, d);
+      attDate.setHours(0, 0, 0, 0);
+      return attDate.getTime() === today.getTime();
+    });
+    
+    const presents = todayAttendances.filter(a => a.status === 'Présent').length;
+    const absents = todayAttendances.filter(a => a.status === 'Absent').length;
+    const late = todayAttendances.filter(a => a.status === 'Retard').length;
+    
+    // Calculer uniquement les heures supplémentaires (après 18h)
+    const totalOvertime = todayAttendances.reduce((sum, a) => {
+      const overtimeFromApi = parseFloat(a.overtime_hours) || 0;
+      return sum + overtimeFromApi;
+    }, 0);
+    
+    // Assurer que totalOvertime est bien un nombre
+    const safeTotalOvertime = parseFloat(totalOvertime) || 0;
+    
+    return {
+      present: `${presents} / ${employees.length}`,
+      absent: absents,
+      late: late,
+      overtime: `${safeTotalOvertime.toFixed(1)}h`
+    };
+  }, [attendances, employees]);
 
   // --- Filtering Logic ---
   const filteredData = useMemo(() => {
-    return mockData.filter(item => {
+    return attendances.filter(item => {
       // Search filter
       const matchesSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                            item.role.toLowerCase().includes(searchTerm.toLowerCase());
@@ -471,7 +480,7 @@ const WorkTimeManagement = () => {
 
       return true;
     });
-  }, [searchTerm, activePeriod]);
+  }, [searchTerm, activePeriod, attendances]);
 
   // --- Export Logic ---
   const exportPDF = () => {
@@ -484,7 +493,7 @@ const WorkTimeManagement = () => {
     autoTable(doc, {
       startY: 40,
       head: [['Employé', 'Rôle', 'Date', 'Arrivée', 'Départ', 'Total', 'Statut']],
-      body: mockData.map(row => [
+      body: filteredData.map(row => [
         row.name, row.role, row.date, row.arrival, row.departure, row.total, row.status
       ]),
       headStyles: { fillColor: [20, 40, 201] },
@@ -495,7 +504,7 @@ const WorkTimeManagement = () => {
 
   const exportCSV = (format = 'csv') => {
     const headers = ['Employé', 'Rôle', 'Date', 'Arrivée', 'Départ', 'Total', 'Statut', 'Anomalie'];
-    const rows = mockData.map(r => [
+    const rows = filteredData.map(r => [
       r.name, r.role, r.date, r.arrival, r.departure, r.total, r.status, r.anomaly || ''
     ]);
 
@@ -612,7 +621,7 @@ const WorkTimeManagement = () => {
         <StatsCard 
           icon={Users}
           title="PRÉSENTS AUJOURD'HUI"
-          value="42 / 45"
+          value={stats.present}
           badge="STABLE"
           badgeColor="bg-green-100 text-green-600"
           borderColor="border-green-500"
@@ -621,7 +630,7 @@ const WorkTimeManagement = () => {
         <StatsCard 
           icon={UserMinus}
           title="ABSENTS"
-          value="3"
+          value={stats.absent}
           badge="+2 VS HIER"
           badgeColor="bg-red-100 text-red-600"
           borderColor="border-red-500"
@@ -630,7 +639,7 @@ const WorkTimeManagement = () => {
         <StatsCard 
           icon={AlertTriangle}
           title="RETARDS DÉTECTÉS"
-          value="12"
+          value={stats.late}
           badge="ALERTE"
           badgeColor="bg-orange-100 text-orange-600"
           borderColor="border-orange-500"
@@ -639,7 +648,7 @@ const WorkTimeManagement = () => {
         <StatsCard 
           icon={Clock}
           title="HEURES SUPPLÉMENTAIRES"
-          value="84h estim."
+          value={stats.overtime}
           badge="PÉRIODE"
           badgeColor="bg-blue-100 text-blue-600"
           borderColor="border-blue-500"
@@ -774,9 +783,13 @@ const WorkTimeManagement = () => {
 
         {/* List Info Summary (Replaces Pagination) */}
         <div className="px-6 py-6 border-t border-gray-50 flex items-center justify-between bg-gray-50/30">
-          <p className="text-sm text-gray-500 font-medium">
-            Affichage de <span className="text-[#111827] font-black">{filteredData.length}</span> résultats sur <span className="text-[#111827] font-black">{mockData.length}</span>
-          </p>
+          {loading ? (
+            <p className="text-sm text-gray-500 font-medium">Chargement des données...</p>
+          ) : (
+            <p className="text-sm text-gray-500 font-medium">
+              Affichage de <span className="text-[#111827] font-black">{filteredData.length}</span> résultats sur <span className="text-[#111827] font-black">{attendances.length}</span>
+            </p>
+          )}
           <div className="text-[10px] font-black uppercase tracking-widest text-blue-600 bg-blue-50 px-3 py-1 rounded-full border border-blue-100">
             {searchTerm ? 'Résultats de recherche' : 'Liste complète'}
           </div>

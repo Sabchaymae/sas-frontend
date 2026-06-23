@@ -31,7 +31,7 @@ export const userService = {
   getUsers: async (params = {}) => {
     // api.js interceptor unwraps response.data → we receive { data: [...] }
     // So response.data is the actual array of users
-    const response = await api.get('api/v1/users', { params });
+    const response = await api.get('v1/users', { params });
     const list = Array.isArray(response.data) ? response.data : (response.data?.data ?? []);
     return {
       data: list.map(mapUserFromApi),
@@ -40,7 +40,7 @@ export const userService = {
   },
 
   getUser: async (id) => {
-    const response = await api.get(`api/v1/users/${id}`);
+    const response = await api.get(`v1/users/${id}`);
     return mapUserFromApi(response.data ?? response);
   },
 
@@ -50,7 +50,7 @@ export const userService = {
       ? { headers: { 'Content-Type': 'multipart/form-data' } }
       : {};
       
-    const response = await api.post('api/v1/users', mappedData, config);
+    const response = await api.post('v1/users', mappedData, config);
     return mapUserFromApi(response.data ?? response);
   },
 
@@ -62,16 +62,16 @@ export const userService = {
       
     if (mappedData instanceof FormData) {
       mappedData.append('_method', 'PUT');
-      const response = await api.post(`api/v1/users/${id}`, mappedData, config);
+      const response = await api.post(`v1/users/${id}`, mappedData, config);
       return mapUserFromApi(response.data ?? response);
     }
 
-    const response = await api.put(`api/v1/users/${id}`, mappedData);
+    const response = await api.put(`v1/users/${id}`, mappedData);
     return mapUserFromApi(response.data ?? response);
   },
 
   deleteUser: async (id) => {
-    const response = await api.delete(`api/v1/users/${id}`);
+    const response = await api.delete(`v1/users/${id}`);
     return response;
   }
 };

@@ -29,20 +29,20 @@ const mapProductToApi = (p) => ({
 
 export const stockService = {
   getProducts: async (params = {}) => {
-    const response = await operationsApi.get('api/v1/products', { params });
+    const response = await operationsApi.get('v1/products', { params });
     // Handle both { products: [] } and { data: { products: [] } }
     const list = response.products || response.data?.products || (Array.isArray(response) ? response : []);
     return list.map(mapProductFromApi).filter(Boolean);
   },
 
   getProduct: async (id) => {
-    const response = await operationsApi.get(`api/v1/products/${id}`);
+    const response = await operationsApi.get(`v1/products/${id}`);
     return mapProductFromApi(response.product || response.data?.product || response);
   },
 
   createProduct: async (productData) => {
     console.log('Sending product data:', mapProductToApi(productData));
-    const response = await operationsApi.post('api/v1/products', mapProductToApi(productData));
+    const response = await operationsApi.post('v1/products', mapProductToApi(productData));
     console.log('Server response (create):', response);
     const product = response.product || response.data?.product || response;
     return mapProductFromApi(product);
@@ -50,20 +50,20 @@ export const stockService = {
 
   updateProduct: async (id, productData) => {
     console.log('Updating product data:', mapProductToApi(productData));
-    const response = await operationsApi.put(`api/v1/products/${id}`, mapProductToApi(productData));
+    const response = await operationsApi.put(`v1/products/${id}`, mapProductToApi(productData));
     console.log('Server response (update):', response);
     const product = response.product || response.data?.product || response;
     return mapProductFromApi(product);
   },
 
   deleteProduct: async (id) => {
-    const response = await operationsApi.delete(`api/v1/products/${id}`);
+    const response = await operationsApi.delete(`v1/products/${id}`);
     return response;
   },
 
   handleMovement: async (id, movementData) => {
     // movementData: { type: 'entrée'|'sortie', quantite: number, motif: string }
-    const response = await operationsApi.post(`api/v1/products/${id}/movement`, movementData);
+    const response = await operationsApi.post(`v1/products/${id}/movement`, movementData);
     return {
       product: mapProductFromApi(response.product || response.data?.product || response),
       triggerAlert: response.trigger_alert || false,
@@ -72,70 +72,82 @@ export const stockService = {
   },
 
   getMovements: async () => {
-    const response = await operationsApi.get('api/v1/stock/movements');
+    const response = await operationsApi.get('v1/stock/movements');
     return response.movements || [];
   },
 
   getNotifications: async () => {
-    const response = await operationsApi.get('api/v1/notifications');
+    const response = await operationsApi.get('v1/notifications');
     return response;
   },
 
   markNotificationRead: async (id) => {
-    const response = await operationsApi.post(`api/v1/notifications/${id}/read`);
+    const response = await operationsApi.post(`v1/notifications/${id}/read`);
+    return response;
+  },
+
+  // Task Optimization
+  getOptimizationSuggestions: async () => {
+    const response = await operationsApi.get('v1/tasks/optimization/suggestions');
+    console.log('API response from getOptimizationSuggestions:', response);
+    return response;
+  },
+
+  applyOptimizations: async (suggestions) => {
+    const response = await operationsApi.post('v1/tasks/optimization/apply', suggestions);
     return response;
   },
 
   // ─── Task Management API ─────────────────────────────────────
   getTasks: async () => {
-    const response = await operationsApi.get('api/v1/tasks');
+    const response = await operationsApi.get('v1/tasks');
     return response.data || [];
   },
 
   createTask: async (taskData) => {
-    const response = await operationsApi.post('api/v1/tasks', taskData);
+    const response = await operationsApi.post('v1/tasks', taskData);
     return response.data;
   },
 
   updateTask: async (id, taskData) => {
-    const response = await operationsApi.put(`api/v1/tasks/${id}`, taskData);
+    const response = await operationsApi.put(`v1/tasks/${id}`, taskData);
     return response.data;
   },
 
   deleteTask: async (id) => {
-    const response = await operationsApi.delete(`api/v1/tasks/${id}`);
+    const response = await operationsApi.delete(`v1/tasks/${id}`);
     return response;
   },
 
   // ─── Incident Management API ─────────────────────────────────
   getIncidents: async () => {
-    const response = await operationsApi.get('api/v1/incidents');
-    return response.data || [];
+    const response = await operationsApi.get('v1/incidents');
+    return response.data || response || [];
   },
 
   createIncident: async (incidentData) => {
-    const response = await operationsApi.post('api/v1/incidents', incidentData);
-    return response.data;
+    const response = await operationsApi.post('v1/incidents', incidentData);
+    return response.data || response;
   },
 
   getIncidentDetails: async (id) => {
-    const response = await operationsApi.get(`api/v1/incidents/${id}`);
+    const response = await operationsApi.get(`v1/incidents/${id}`);
     return response;
   },
 
   updateIncident: async (id, incidentData) => {
-    const response = await operationsApi.put(`api/v1/incidents/${id}`, incidentData);
-    return response.data;
+    const response = await operationsApi.put(`v1/incidents/${id}`, incidentData);
+    return response.data || response;
   },
 
   deleteIncident: async (id) => {
-    const response = await operationsApi.delete(`api/v1/incidents/${id}`);
+    const response = await operationsApi.delete(`v1/incidents/${id}`);
     return response;
   },
 
   addTaskComment: async (taskId, commentData) => {
     // commentData: { content: string, type: 'comment'|'issue' }
-    const response = await operationsApi.post(`api/v1/tasks/${taskId}/comments`, commentData);
+    const response = await operationsApi.post(`v1/tasks/${taskId}/comments`, commentData);
     return response;
   }
 };

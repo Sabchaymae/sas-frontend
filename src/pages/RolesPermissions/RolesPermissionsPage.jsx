@@ -7,7 +7,7 @@ import ConfirmationModal from '../../components/users/ConfirmationModal';
 import { Save, ShieldCheck, X } from 'lucide-react';
 import { clsx } from 'clsx';
 import api from '../../services/api';
-import { USER_ROLES } from '../../constants/users';
+import { USER_ROLES, ROLE_STYLES } from '../../constants/users';
 import usePermissions from '../../hooks/usePermissions';
 
 const RolesPermissionsPage = () => {
@@ -38,21 +38,75 @@ const RolesPermissionsPage = () => {
     fetchRoles();
   }, []);
 
+  // Role color mapping
+  const getRoleColor = (roleName) => {
+    if (!roleName) return 'bg-gradient-to-br from-gray-500 to-gray-600';
+    
+    const roleLower = roleName.toLowerCase().trim();
+    const colorMap = {
+      // Using both constant values and lowercase strings
+      [USER_ROLES.ADMIN]: 'bg-gradient-to-br from-purple-500 to-purple-600',
+      [USER_ROLES.ASSISTANT]: 'bg-gradient-to-br from-blue-500 to-blue-600',
+      [USER_ROLES.ANIMATEUR]: 'bg-gradient-to-br from-green-500 to-green-600',
+      [USER_ROLES.SUPERVISEUR]: 'bg-gradient-to-br from-orange-500 to-orange-600',
+      'admin': 'bg-gradient-to-br from-purple-500 to-purple-600',
+      'assistant': 'bg-gradient-to-br from-blue-500 to-blue-600',
+      'animateur': 'bg-gradient-to-br from-green-500 to-green-600',
+      'superviseur': 'bg-gradient-to-br from-orange-500 to-orange-600',
+      'it': 'bg-gradient-to-br from-cyan-500 to-cyan-600', // Added IT color
+    };
+    // For custom roles, cycle through additional colors
+    const customColors = [
+      'bg-gradient-to-br from-pink-500 to-pink-600',
+      'bg-gradient-to-br from-indigo-500 to-indigo-600',
+      'bg-gradient-to-br from-teal-500 to-teal-600',
+      'bg-gradient-to-br from-cyan-500 to-cyan-600',
+      'bg-gradient-to-br from-lime-500 to-lime-600',
+      'bg-gradient-to-br from-amber-500 to-amber-600',
+      'bg-gradient-to-br from-rose-500 to-rose-600',
+      'bg-gradient-to-br from-violet-500 to-violet-600',
+    ];
+    
+    // Check for exact match first
+    if (colorMap[roleLower]) return colorMap[roleLower];
+    
+    // Check if role name contains any of the keywords
+    if (roleLower.includes('admin')) return colorMap['admin'];
+    if (roleLower.includes('assistant')) return colorMap['assistant'];
+    if (roleLower.includes('animateur')) return colorMap['animateur'];
+    if (roleLower.includes('superviseur')) return colorMap['superviseur'];
+    if (roleLower.includes('it')) return colorMap['it'];
+    
+    // For other custom roles, use hash to get consistent color
+    const hash = roleLower.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    return customColors[hash % customColors.length];
+  };
+
   const fetchRoles = async () => {
     try {
 
-      const response = await api.get('api/v1/roles-permissions/roles');
+      const response = await api.get('v1/roles-permissions/roles');
+      console.log("API Response:", response); // Debug log
+      
       if (response.success) {
-        const apiRoles = response.roles.map(r => ({
-          ...r,
-          users: r.users_count || 0
-        }));
+        const apiRoles = response.roles.map(r => {
+          console.log("Processing role:", r.name, "Existing color:", r.color); // Debug log
+          // Always use our color mapping for better consistency
+          const calculatedColor = getRoleColor(r.name);
+          console.log("Calculated color for", r.name, ":", calculatedColor); // Debug log
+          return {
+            ...r,
+            users: r.users_count || 0,
+            color: calculatedColor
+          };
+        });
+        console.log("Processed API roles:", apiRoles); // Debug log
 
         // Merge with static roles from constants
         const staticRoles = Object.values(USER_ROLES).map((roleName, index) => ({
           id: `static-${roleName}`,
           name: roleName,
-          color: index % 2 === 0 ? 'bg-primary' : 'bg-orange-500',
+          color: getRoleColor(roleName),
           users: 0,
           isStatic: true
         }));
@@ -63,6 +117,7 @@ const RolesPermissionsPage = () => {
         );
 
         const combinedRoles = [...apiRoles, ...filteredStatic];
+        console.log("Final combined roles:", combinedRoles); // Debug log
         setRoles(combinedRoles);
 
         // Default to first role if none selected
@@ -85,7 +140,7 @@ const RolesPermissionsPage = () => {
 
   const fetchRoleUsers = async () => {
     try {
-      const response = await api.get(`api/v1/roles-permissions/roles/${selectedRole}/users`, {
+      const response = await api.get(`v1/roles-permissions/roles/${selectedRole}/users`, {
         params: { search: searchQuery }
       });
       if (response.success) {
@@ -105,7 +160,7 @@ const RolesPermissionsPage = () => {
 
   const fetchPermissions = async () => {
     try {
-      const response = await api.get('api/v1/roles-permissions/permissions', {
+      const response = await api.get('v1/roles-permissions/permissions', {
         params: {
           role_id: selectedRole,
           user_ids: selectedUsers.map(u => u.id)
@@ -217,9 +272,9 @@ const RolesPermissionsPage = () => {
 
   const handleAddRole = async (roleName) => {
     try {
-      const response = await api.post('api/v1/roles-permissions/roles', {
+      const response = await api.post('v1/roles-permissions/roles', {
         name: roleName,
-        color: 'bg-gray-700'
+        color: getRoleColor(roleName)
       });
       if (response.success) {
         setIsDrawerOpen(false);
@@ -236,7 +291,7 @@ const RolesPermissionsPage = () => {
   const handleUpdateRole = async (roleName) => {
     if (!editingRole) return;
     try {
-      const response = await api.put(`api/v1/roles-permissions/roles/${editingRole.id}`, {
+      const response = await api.put(`v1/roles-permissions/roles/${editingRole.id}`, {
         name: roleName,
       });
       if (response.success) {
@@ -259,7 +314,7 @@ const RolesPermissionsPage = () => {
   const handleConfirmDelete = async () => {
     if (!roleToDelete) return;
     try {
-      const response = await api.delete(`api/v1/roles-permissions/roles/${roleToDelete.id}`);
+      const response = await api.delete(`v1/roles-permissions/roles/${roleToDelete.id}`);
       if (response.success) {
         if (selectedRole === roleToDelete.id) setSelectedRole(null);
         await fetchRoles();
@@ -278,7 +333,7 @@ const RolesPermissionsPage = () => {
       const role = roles.find(r => r.id === roleId);
       if (!role) return;
 
-      const response = await api.put(`api/v1/users/${userId}`, {
+      const response = await api.put(`v1/users/${userId}`, {
         role: role.name.toLowerCase()
       });
 
@@ -296,7 +351,7 @@ const RolesPermissionsPage = () => {
   const handleSavePermissions = async () => {
     setLoading(true);
     try {
-      const response = await api.post('api/v1/roles-permissions/permissions/sync', {
+      const response = await api.post('v1/roles-permissions/permissions/sync', {
         role_id: selectedRole,
         user_ids: selectedUsers.map(u => u.id),
         permissions: permissions

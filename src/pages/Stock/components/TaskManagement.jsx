@@ -23,11 +23,14 @@ import { stockService } from '@/services/stockService';
 import { useUsers } from '@/hooks/useUsers';
 import useAuth from '@/hooks/useAuth';
 import useKanbanWebsocket from '@/hooks/useKanbanWebsocket';
+import useTaskOptimization from '@/hooks/useTaskOptimization';
 import TaskDrawer from './TaskDrawer';
 import TaskDetailDrawer from './TaskDetailDrawer';
+import OptimizationPanel from './OptimizationPanel';
 import Alert from '@/components/common/Alert';
 import ConfirmationModal from '@/components/users/ConfirmationModal';
 import { cn } from '@/utils/cn';
+import { Sparkles } from 'lucide-react';
 
 const COLUMNS = [
   { id: 'TO_DO', title: 'A FAIRE', color: 'bg-blue-100 text-blue-600', border: 'border-blue-200' },
@@ -57,6 +60,9 @@ const TaskManagement = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [notification, setNotification] = useState(null);
   const [deleteModal, setDeleteModal] = useState({ isOpen: false, taskId: null });
+  const [isOptimizationOpen, setIsOptimizationOpen] = useState(false);
+  
+  const { reassignmentSuggestions, deadlineSuggestions, optimizeWorkload } = useTaskOptimization(tasks, users);
   
   const [filters, setFilters] = useState({
     priority: '',
@@ -160,6 +166,31 @@ const TaskManagement = () => {
   const handleTaskClick = (task) => {
     setSelectedTask(task);
     setIsDetailOpen(true);
+  };
+
+  const handleApplyOptimizations = async (suggestions) => {
+    try {
+      setIsLoading(true);
+      // Appliquer les optimisations en batch via le backend (deadlines + réaffectations)
+      await stockService.applyOptimizations(suggestions);
+      
+      await fetchTasks();
+      setIsOptimizationOpen(false);
+      setNotification({
+        type: 'success',
+        title: 'Optimisation réussie',
+        message: 'Le planning a été réajusté pour maximiser la productivité.'
+      });
+    } catch (error) {
+      console.error('Error applying optimizations:', error);
+      setNotification({
+        type: 'error',
+        title: 'Erreur',
+        message: 'Une erreur est survenue lors de l\'application des optimisations.'
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleEditTask = (e, task) => {
@@ -269,7 +300,18 @@ const TaskManagement = () => {
             className="px-6 py-2.5 bg-[#1428C9] text-white text-xs font-black rounded-xl shadow-lg shadow-[#1428C9]/20 hover:bg-[#1428C9]/90 transition-all flex items-center gap-2"
           >
             <Plus size={14} />
-            Nouvelle tâche
+             Nouvelle tâche
+          </button>
+          
+          <button 
+            onClick={() => setIsOptimizationOpen(true)}
+            className="px-6 py-2.5 bg-indigo-50 text-indigo-600 text-xs font-black rounded-xl border border-indigo-100 hover:bg-indigo-100 transition-all flex items-center gap-2 shadow-sm"
+          >
+            <Sparkles size={14} />
+            Assistant IA
+            {reassignmentSuggestions?.length > 0 && (
+              <span className="flex h-2 w-2 rounded-full bg-indigo-600 animate-pulse ml-1" />
+            )}
           </button>
         </div>
       </div>
@@ -407,15 +449,27 @@ const TaskManagement = () => {
       {selectedTask && (
         <TaskDetailDrawer
           isOpen={isDetailOpen}
-          onClose={() => {
-            setIsDetailOpen(false);
-            setSelectedTask(null);
-          }}
+          onClose={() => setIsDetailOpen(false)}
           task={selectedTask}
-          onUpdate={handleUpdateTask}
+          onEdit={(task) => {
+            setIsDetailOpen(false);
+            setSelectedTask(task);
+            setIsModalOpen(true);
+          }}
+          onDelete={(taskId) => {
+            setIsDetailOpen(false);
+            setDeleteModal({ isOpen: true, taskId });
+          }}
           onStatusChange={handleStatusChange}
         />
       )}
+
+      <OptimizationPanel
+        isOpen={isOptimizationOpen}
+        onClose={() => setIsOptimizationOpen(false)}
+        suggestions={optimizeWorkload}
+        onApply={handleApplyOptimizations}
+      />
 
       <ConfirmationModal
         isOpen={deleteModal.isOpen}

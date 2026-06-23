@@ -20,7 +20,7 @@ const UserTableRow = memo(({ user, onEdit, onView, onDelete, canView = true, can
           )}
           <div className={cn(
             "absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border border-white",
-            user.statut === 'Actif' ? "bg-green-500" : "bg-gray-300"
+            user.isOnline ? "bg-green-500" : "bg-gray-300"
           )} />
         </div>
       </td>
